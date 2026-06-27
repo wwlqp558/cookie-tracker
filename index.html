@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🍪 餅乾效期管家</title>
+<style>
+  :root {
+    --cream: #FAF7F2; --warm-white: #FFFDF9; --biscuit: #E8D5B0;
+    --caramel: #C49A6C; --dark-brown: #5C3D1E; --forest: #4A7C59;
+    --sage: #8FB49A; --alert-red: #C0392B; --alert-yellow: #D4860A;
+    --text-main: #3A2A1A; --text-muted: #8A7A6A;
+    --card-shadow: 0 4px 24px rgba(92,61,30,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue','PingFang TC','Microsoft JhengHei',sans-serif; background: var(--cream); color: var(--text-main); min-height: 100vh; }
+  header { background: linear-gradient(135deg, var(--dark-brown) 0%, #7A5030 100%); color: #fff; padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.18); }
+  header h1 { font-size: 1.2rem; font-weight: 700; }
+  header p { font-size: .72rem; opacity: .7; margin-top: 2px; }
+  #config-banner { background: linear-gradient(90deg,#fff3cd,#ffeaa7); border-left: 4px solid var(--alert-yellow); padding: 10px 16px; font-size: .82rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  #config-banner span { flex:1; color:#7a5c00; }
+  #config-panel { background: var(--warm-white); border-bottom: 1px solid var(--biscuit); padding: 16px; display: none; }
+  #config-panel.open { display: block; }
+  .config-row { margin-bottom: 10px; }
+  .config-row label { display: block; font-size: .75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+  .config-row input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--biscuit); border-radius: 8px; font-size: .82rem; background: var(--cream); color: var(--text-main); }
+  .config-save-btn { background: var(--dark-brown); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: .85rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
+  .tabs { display: flex; background: var(--warm-white); border-bottom: 1.5px solid var(--biscuit); padding: 0 16px; }
+  .tab { padding: 11px 14px; font-size: .82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2.5px solid transparent; transition: all .2s; white-space: nowrap; }
+  .tab.active { color: var(--dark-brown); border-bottom-color: var(--caramel); }
+  main { padding: 14px; max-width: 600px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .add-card { background: var(--warm-white); border-radius: 16px; padding: 18px; box-shadow: var(--card-shadow); margin-bottom: 16px; }
+  .add-card h2 { font-size: .95rem; font-weight: 700; color: var(--dark-brown); margin-bottom: 14px; }
+  .upload-zone { border: 2px dashed var(--biscuit); border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; background: var(--cream); transition: all .2s; }
+  .upload-zone:hover { border-color: var(--caramel); background: #FDF5E8; }
+  .upload-zone .icon { font-size: 2.2rem; margin-bottom: 6px; }
+  .upload-zone p { font-size: .8rem; color: var(--text-muted); line-height: 1.5; }
+  .upload-zone input { display: none; }
+  #preview-wrap { margin-top: 10px; display: none; position: relative; }
+  #preview-img { width: 100%; border-radius: 10px; max-height: 180px; object-fit: cover; display: block; }
+  #remove-img { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.5); color:#fff; border:none; border-radius: 50%; width:24px; height:24px; font-size:.8rem; cursor:pointer; }
+  .ai-status { display: none; align-items: center; gap: 8px; font-size: .78rem; color: var(--forest); margin-top: 8px; background: #EDF7F0; border-radius: 8px; padding: 8px 12px; }
+  .ai-status.show { display: flex; }
+  .spinner { width: 15px; height: 15px; border: 2px solid var(--sage); border-top-color: var(--forest); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink:0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .form-grid { display: grid; gap: 10px; margin-top: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-group label { display: block; font-size: .73rem; color: var(--text-muted); font-weight: 600; margin-bottom: 3px; }
+  .form-group input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--biscuit); border-radius: 8px; font-size: .85rem; background: var(--cream); color: var(--text-main); }
+  .form-group input:focus { outline: none; border-color: var(--caramel); }
+  .add-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--dark-brown), var(--caramel)); color: #fff; border: none; border-radius: 10px; font-size: .95rem; font-weight: 700; cursor: pointer; margin-top: 4px; transition: opacity .2s; }
+  .add-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .list-header h2 { font-size: .95rem; font-weight: 700; color: var(--dark-brown); }
+  .count-badge { background: var(--biscuit); color: var(--dark-brown); border-radius: 20px; padding: 2px 10px; font-size: .73rem; font-weight: 700; }
+  .sort-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .sort-btn { font-size: .73rem; padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--biscuit); background: var(--warm-white); color: var(--text-muted); cursor: pointer; }
+  .sort-btn.active { background: var(--dark-brown); color: #fff; border-color: var(--dark-brown); }
+  .item-card { background: var(--warm-white); border-radius: 14px; padding: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); display: flex; gap: 10px; align-items: flex-start; border-left: 4px solid var(--sage); position: relative; overflow: hidden; }
+  .item-card.urgent { border-left-color: var(--alert-red); }
+  .item-card.warning { border-left-color: var(--alert-yellow); }
+  .item-card.expired { border-left-color: #aaa; opacity: .65; }
+  .item-thumb { width: 58px; height: 58px; border-radius: 10px; flex-shrink: 0; background: var(--biscuit); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; overflow: hidden; }
+  .item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .item-body { flex: 1; min-width: 0; }
+  .item-name { font-weight: 700; font-size: .92rem; color: var(--dark-brown); margin-bottom: 3px; }
+  .item-dates { font-size: .72rem; color: var(--text-muted); margin-bottom: 6px; line-height: 1.6; }
+  .status-chip { display: inline-block; font-size: .68rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: 7px; }
+  .chip-ok { background: #EDF7F0; color: var(--forest); }
+  .chip-warning { background: #FFF3CD; color: #7a5c00; }
+  .chip-urgent { background: #FDEDEC; color: var(--alert-red); }
+  .chip-expired { background: #F0F0F0; color: #888; }
+  .item-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .action-btn { font-size: .72rem; padding: 5px 11px; border-radius: 20px; border: 1.5px solid var(--biscuit); background: var(--cream); color: var(--text-muted); cursor: pointer; transition: all .15s; }
+  .action-btn.eat { border-color: var(--forest); color: var(--forest); }
+  .action-btn.eat:hover { background: var(--forest); color: #fff; }
+  .action-btn.del:hover { background: var(--alert-red); color: #fff; border-color: var(--alert-red); }
+  .action-btn.notion { border-color: #6B7280; color: #6B7280; }
+  .notion-dot { position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: #ccc; }
+  .notion-dot.synced { background: var(--forest); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .history-card { background: var(--warm-white); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; opacity: .7; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .history-thumb { width: 42px; height: 42px; border-radius: 8px; background: var(--biscuit); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; overflow: hidden; }
+  .history-thumb img { width:100%; height:100%; object-fit:cover; }
+  .history-info { flex: 1; }
+  .history-name { font-weight: 600; font-size: .85rem; }
+  .history-meta { font-size: .7rem; color: var(--text-muted); margin-top: 2px; }
+  .history-badge { font-size: .68rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; white-space: nowrap; }
+  .badge-eaten { background: #EDF7F0; color: var(--forest); }
+  .badge-expired { background: #F0F0F0; color: #888; }
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+  .empty-state .emoji { font-size: 2.8rem; margin-bottom: 10px; }
+  .empty-state p { font-size: .88rem; line-height: 1.6; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--dark-brown); color: #fff; padding: 10px 20px; border-radius: 24px; font-size: .82rem; box-shadow: 0 4px 20px rgba(0,0,0,.25); transition: transform .3s; z-index: 9999; white-space: nowrap; pointer-events:none; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  .fab { position: fixed; bottom: 24px; right: 20px; width: 54px; height: 54px; background: linear-gradient(135deg, var(--dark-brown), var(--caramel)); color: #fff; border: none; border-radius: 50%; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 20px rgba(92,61,30,.35); display: flex; align-items: center; justify-content: center; z-index: 50; }
+  @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>🍪 餅乾效期管家</h1>
+  <p>拍照辨識 · Notion 同步 · 到期提醒</p>
+</header>
+
+<div id="config-banner" onclick="toggleConfig()">
+  <span>⚙️ Notion 設定（點此展開）</span><span>▾</span>
+</div>
+<div id="config-panel">
+  <div class="config-row">
+    <label>Notion Integration Token</label>
+    <input type="password" id="notion-token" placeholder="ntn_xxxxxxxx">
+  </div>
+  <div class="config-row">
+    <label>Notion Database ID</label>
+    <input type="text" id="notion-db" placeholder="b11ab4a9...">
+  </div>
+  <button class="config-save-btn" onclick="saveConfig()">💾 儲存設定</button>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('active')">目前存貨</div>
+  <div class="tab" onclick="switchTab('add')">＋ 新增</div>
+  <div class="tab" onclick="switchTab('history')">歷史紀錄</div>
+</div>
+
+<main>
+  <div class="section" id="sec-add">
+    <div class="add-card">
+      <h2>📸 拍照新增零食</h2>
+      <div class="upload-zone" onclick="document.getElementById('img-input').click()">
+        <div class="icon">📷</div>
+        <p>點擊拍照 / 選擇圖片<br><small>AI 自動辨識名稱與有效日期</small></p>
+        <input type="file" id="img-input" accept="image/*" onchange="handleImage(this)">
+      </div>
+      <div id="preview-wrap">
+        <img id="preview-img" alt="預覽">
+        <button id="remove-img" onclick="removeImage()">✕</button>
+      </div>
+      <div class="ai-status" id="ai-status">
+        <div class="spinner"></div>
+        <span id="ai-msg">AI 辨識中…</span>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>零食名稱 *</label>
+          <input type="text" id="f-name" placeholder="例：義美小泡芙">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>有效日期 *</label>
+            <input type="date" id="f-expiry">
+          </div>
+          <div class="form-group">
+            <label>購買日期</label>
+            <input type="date" id="f-purchase">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>備註（放在哪）</label>
+          <input type="text" id="f-notes" placeholder="例：第二層架子左邊">
+        </div>
+        <button class="add-btn" id="add-btn" onclick="addItem()">＋ 加入清單</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section active" id="sec-active">
+    <div class="list-header">
+      <h2>目前存貨</h2>
+      <span class="count-badge" id="active-count">0 項</span>
+    </div>
+    <div class="sort-row">
+      <button class="sort-btn active" onclick="setSort('expiry',this)">⏰ 到期日</button>
+      <button class="sort-btn" onclick="setSort('name',this)">🔤 名稱</button>
+      <button class="sort-btn" onclick="setSort('status',this)">🚦 狀態</button>
+    </div>
+    <div id="active-list"></div>
+  </div>
+
+  <div class="section" id="sec-history">
+    <div class="list-header">
+      <h2>歷史紀錄</h2>
+      <span class="count-badge" id="history-count">0 項</span>
+    </div>
+    <div id="history-list"></div>
+  </div>
+</main>
+
+<button class="fab" onclick="switchTab('add')">＋</button>
+<div id="toast"></div>
+
+<script>
+// ══ 設定 ══
+const DEFAULT_TOKEN = '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';
+const DEFAULT_DB    = 'b11ab4a9b0a74c4a95b2df906ccb3a8c';
+// Netlify Function 代理網址（部署後自動有效）
+const PROXY_BASE    = '/.netlify/functions/notion-proxy';
+
+function getToken() { return localStorage.getItem('notion_token') || DEFAULT_TOKEN; }
+function getDbId()  { return localStorage.getItem('notion_db')    || DEFAULT_DB; }
+
+let items   = JSON.parse(localStorage.getItem('cookie_items')   || '[]');
+let history = JSON.parse(localStorage.getItem('cookie_history') || '[]');
+let currentSort = 'expiry';
+let currentThumb = null;
+
+// ══ Config ══
+function toggleConfig() {
+  const p = document.getElementById('config-panel');
+  p.classList.toggle('open');
+  document.getElementById('notion-token').value = getToken();
+  document.getElementById('notion-db').value    = getDbId();
+}
+function saveConfig() {
+  localStorage.setItem('notion_token', document.getElementById('notion-token').value.trim());
+  localStorage.setItem('notion_db',    document.getElementById('notion-db').value.trim());
+  document.getElementById('config-panel').classList.remove('open');
+  showToast('✅ 設定已儲存');
+}
+
+// ══ Tabs ══
+function switchTab(name) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  document.querySelectorAll('.tab')[{active:0,add:1,history:2}[name]].classList.add('active');
+  if(name==='active')  renderActive();
+  if(name==='history') renderHistory();
+}
+
+// ══ 圖片壓縮 ══
+function compressImage(file, cb) {
+  const r = new FileReader();
+  r.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX=200, c=document.createElement('canvas');
+      let w=img.width, h=img.height;
+      if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+      c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      cb(c.toDataURL('image/jpeg',0.6));
+    };
+    img.src = e.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+async function handleImage(input) {
+  const file = input.files[0]; if(!file) return;
+  compressImage(file, thumb => {
+    currentThumb = thumb;
+    document.getElementById('preview-img').src = thumb;
+    document.getElementById('preview-wrap').style.display = 'block';
+  });
+  const r = new FileReader();
+  r.onload = async e => {
+    await recognizeWithClaude(e.target.result.split(',')[1]);
+  };
+  r.readAsDataURL(file);
+}
+
+function removeImage() {
+  currentThumb = null;
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('img-input').value = '';
+  document.getElementById('ai-status').classList.remove('show');
+}
+
+// ══ Claude AI 辨識 ══
+async function recognizeWithClaude(b64) {
+  const status = document.getElementById('ai-status');
+  const msg    = document.getElementById('ai-msg');
+  status.classList.add('show');
+  msg.textContent = 'AI 辨識名稱與日期中…';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:300,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+          {type:'text',text:`你是食品包裝辨識專家。請從圖片中找出：
+1. 零食/食品名稱（品牌+產品名）
+2. 有效日期（EXP、有效期限、賞味期限等）
+只回傳JSON不要說明：{"name":"名稱或空字串","expiry":"YYYY-MM-DD或空字串","confidence":"high/medium/low"}`}
+        ]}]
+      })
+    });
+    const data = await res.json();
+    let parsed = {};
+    try { parsed = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); } catch(e){}
+    const results = [];
+    if(parsed.name)   { document.getElementById('f-name').value=parsed.name;     results.push('名稱'); }
+    if(parsed.expiry) { document.getElementById('f-expiry').value=parsed.expiry; results.push('日期'); }
+    msg.textContent = results.length ? `✅ 已辨識：${results.join('、')}（信心度 ${parsed.confidence||'?'}）` : '⚠️ 未辨識到，請手動填寫';
+  } catch(e) {
+    msg.textContent = '⚠️ AI 辨識失敗，請手動填寫';
+  }
+}
+
+// ══ 新增 ══
+async function addItem() {
+  const name=document.getElementById('f-name').value.trim();
+  const expiry=document.getElementById('f-expiry').value;
+  const purchase=document.getElementById('f-purchase').value;
+  const notes=document.getElementById('f-notes').value.trim();
+  if(!name||!expiry){showToast('❗ 請填寫名稱與有效日期');return;}
+  const btn=document.getElementById('add-btn');
+  btn.disabled=true; btn.textContent='儲存中…';
+  const item={id:Date.now().toString(),name,expiry,purchase,notes,image:currentThumb||null,added:new Date().toISOString(),status:'active',notionId:null,notionSynced:false};
+  items.push(item); saveItems();
+  await syncToNotion(item);
+  btn.disabled=false; btn.textContent='＋ 加入清單';
+  resetForm();
+  showToast('🍪 已加入：'+name);
+  switchTab('active');
+}
+
+function resetForm() {
+  ['f-name','f-expiry','f-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-purchase').value=new Date().toISOString().split('T')[0];
+  document.getElementById('preview-wrap').style.display='none';
+  document.getElementById('ai-status').classList.remove('show');
+  document.getElementById('img-input').value='';
+  currentThumb=null;
+}
+
+// ══ Notion 同步（透過 Netlify Function 代理） ══
+async function syncToNotion(item) {
+  try {
+    const props = {
+      "Name":       {title:[{text:{content:item.name}}]},
+      "ExpiryDate": {date:{start:item.expiry}},
+      "Status":     {select:{name:'正常'}},
+      "Notes":      {rich_text:[{text:{content:item.notes||''}}]}
+    };
+    if(item.purchase) props["PurchaseDate"]={date:{start:item.purchase}};
+
+    const res = await fetch(PROXY_BASE, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action:'createPage',
+        token: getToken(),
+        dbId:  getDbId(),
+        properties: props
+      })
+    });
+    const data = await res.json();
+    if(data.id) {
+      item.notionId=data.id; item.notionSynced=true; saveItems();
+    } else {
+      console.warn('Notion error:', data);
+    }
+  } catch(e) { console.warn('Sync failed:', e); }
+}
+
+async function updateNotionStatus(item, statusName) {
+  if(!item.notionId) return;
+  try {
+    await fetch(PROXY_BASE, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action:'updatePage',
+        token: getToken(),
+        pageId: item.notionId,
+        properties: {"Status":{select:{name:statusName}}}
+      })
+    });
+  } catch(e){}
+}
+
+// ══ Render ══
+function renderActive() {
+  const list=document.getElementById('active-list');
+  let ai=items.filter(i=>i.status==='active');
+  ai.sort((a,b)=>{
+    if(currentSort==='expiry') return new Date(a.expiry)-new Date(b.expiry);
+    if(currentSort==='name')   return a.name.localeCompare(b.name,'zh-TW');
+    if(currentSort==='status') return getDaysLeft(a.expiry)-getDaysLeft(b.expiry);
+    return 0;
+  });
+  document.getElementById('active-count').textContent=ai.length+' 項';
+  if(!ai.length){list.innerHTML=`<div class="empty-state"><div class="emoji">🍪</div><p>還沒有任何零食<br>點右下角 ＋ 開始新增</p></div>`;return;}
+  list.innerHTML=ai.map(item=>{
+    const d=getDaysLeft(item.expiry);
+    let cc='',sc='',st='';
+    if(d<0){cc='expired';sc='chip-expired';st=`已過期 ${-d} 天`;}
+    else if(d<=7){cc='urgent';sc='chip-urgent';st=`⚠️ 剩 ${d} 天！`;}
+    else if(d<=30){cc='warning';sc='chip-warning';st=`⏰ 剩 ${d} 天`;}
+    else{sc='chip-ok';st=`✅ 剩 ${d} 天`;}
+    const dot=`<div class="notion-dot ${item.notionSynced?'synced':''}" title="${item.notionSynced?'已同步':'未同步'}"></div>`;
+    const thumb=item.image?`<div class="item-thumb"><img src="${item.image}" alt=""></div>`:`<div class="item-thumb">🍪</div>`;
+    const retry=!item.notionSynced?`<button class="action-btn notion" onclick="retrySyncItem('${item.id}')">☁ 同步</button>`:'';
+    return `<div class="item-card ${cc}" id="card-${item.id}">${dot}${thumb}<div class="item-body"><div class="item-name">${item.name}</div><div class="item-dates">📅 有效：${item.expiry}${item.purchase?`<br>🛒 購買：${item.purchase}`:''}${item.notes?`<br>📝 ${item.notes}`:''}</div><span class="status-chip ${sc}">${st}</span><div class="item-actions"><button class="action-btn eat" onclick="markEaten('${item.id}')">✅ 吃掉了</button>${retry}<button class="action-btn del" onclick="deleteItem('${item.id}')">🗑</button></div></div></div>`;
+  }).join('');
+}
+
+function getDaysLeft(s){const t=new Date();t.setHours(0,0,0,0);const e=new Date(s);e.setHours(0,0,0,0);return Math.round((e-t)/86400000);}
+function setSort(type,btn){currentSort=type;document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderActive();}
+
+async function markEaten(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  item.status='eaten';item.doneDate=new Date().toISOString();
+  history.unshift({...item,archiveReason:'eaten'});
+  items=items.filter(i=>i.id!==id);saveItems();
+  await updateNotionStatus(item,'已吃完');
+  showToast('✅ 已標記吃完！');renderActive();
+}
+async function deleteItem(id){if(!confirm('確定要刪除？'))return;items=items.filter(i=>i.id!==id);saveItems();showToast('🗑 已刪除');renderActive();}
+async function retrySyncItem(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  showToast('☁ 同步中…');await syncToNotion(item);
+  showToast(item.notionSynced?'✅ 已同步到 Notion！':'❌ 同步失敗');renderActive();
+}
+
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  document.getElementById('history-count').textContent=history.length+' 項';
+  if(!history.length){list.innerHTML=`<div class="empty-state"><div class="emoji">📦</div><p>還沒有歷史紀錄</p></div>`;return;}
+  list.innerHTML=history.map(item=>{
+    const r=item.archiveReason==='eaten'?'已吃完':'已過期';
+    const bc=item.archiveReason==='eaten'?'badge-eaten':'badge-expired';
+    const dd=item.doneDate?new Date(item.doneDate).toLocaleDateString('zh-TW'):'';
+    const thumb=item.image?`<div class="history-thumb"><img src="${item.image}" alt=""></div>`:`<div class="history-thumb">🍪</div>`;
+    return `<div class="history-card">${thumb}<div class="history-info"><div class="history-name">${item.name}</div><div class="history-meta">效期 ${item.expiry}${dd?'　'+dd:''}</div></div><span class="history-badge ${bc}">${r}</span></div>`;
+  }).join('');
+}
+
+function autoArchiveExpired(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const ta=items.filter(i=>{if(i.status!=='active')return false;const e=new Date(i.expiry);e.setHours(0,0,0,0);return Math.round((today-e)/86400000)>30;});
+  ta.forEach(async item=>{item.status='expired';item.doneDate=new Date().toISOString();history.unshift({...item,archiveReason:'expired'});items=items.filter(i=>i.id!==item.id);await updateNotionStatus(item,'已過期');});
+  if(ta.length)saveItems();
+}
+
+function saveItems(){
+  try{localStorage.setItem('cookie_items',JSON.stringify(items));localStorage.setItem('cookie_history',JSON.stringify(history));}
+  catch(e){items.forEach(i=>i.image=null);history.forEach(i=>i.image=null);localStorage.setItem('cookie_items',JSON.stringify(items));localStorage.setItem('cookie_history',JSON.stringify(history));}
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+autoArchiveExpired();renderActive();
+document.getElementById('f-purchase').value=new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
