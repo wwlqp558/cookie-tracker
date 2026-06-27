@@ -203,10 +203,8 @@ function getToken() { return localStorage.getItem('notion_token') || DEFAULT_TOK
 function getDbId()  { return localStorage.getItem('notion_db')    || DEFAULT_DB; }
 
 let items = [], historyItems = [], currentSort = 'expiry';
-let currentThumb = null; // 壓縮縮圖 base64
-let currentFullB64 = null; // 原圖 base64（給 AI 用，不存）
+let currentThumb = null;
 
-// ── Config ──
 function toggleConfig() {
   document.getElementById('config-panel').classList.toggle('open');
   document.getElementById('notion-token').value = getToken();
@@ -220,7 +218,6 @@ function saveConfig() {
   loadFromNotion();
 }
 
-// ── Tabs ──
 function switchTab(name) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -230,110 +227,83 @@ function switchTab(name) {
   if(name==='history') loadHistory();
 }
 
-// ── 圖片處理：原圖給AI，縮圖存Notion ──
-function compressToThumb(file, cb) {
-  const r = new FileReader();
-  r.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX=300, c=document.createElement('canvas');
-      let w=img.width, h=img.height;
-      if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
-      c.width=w; c.height=h;
-      c.getContext('2d').drawImage(img,0,0,w,h);
-      cb(c.toDataURL('image/jpeg', 0.7));
-    };
-    img.src = e.target.result;
+// ── 圖片處理 ──
+function compressToThumb(dataUrl, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const MAX=300, c=document.createElement('canvas');
+    let w=img.width, h=img.height;
+    if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+    c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',0.7));
   };
-  r.readAsDataURL(file);
+  img.src = dataUrl;
+}
+
+function resizeForAI(dataUrl, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const MAX=1200, c=document.createElement('canvas');
+    let w=img.width, h=img.height;
+    if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+    c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',0.85).split(',')[1]);
+  };
+  img.src = dataUrl;
 }
 
 async function handleImage(input) {
   const file = input.files[0]; if(!file) return;
-
-  // 讀原圖（給AI辨識用）
-  const r = new FileReader();
-  r.onload = async e => {
+  const reader = new FileReader();
+  reader.onload = e => {
     const dataUrl = e.target.result;
-    currentFullB64 = dataUrl.split(',')[1];
-
-    // 顯示預覽（原圖）
     document.getElementById('preview-img').src = dataUrl;
     document.getElementById('preview-wrap').style.display = 'block';
-
-    // 同時壓縮成縮圖存起來
-    compressToThumb(file, thumb => { currentThumb = thumb; });
-
-    // 用原圖給 AI 辨識
-    await recognizeWithClaude(currentFullB64);
+    // 縮圖存 localStorage 顯示用
+    compressToThumb(dataUrl, thumb => { currentThumb = thumb; });
+    // 適當大小給 AI
+    resizeForAI(dataUrl, b64 => { recognizeWithClaude(b64); });
   };
-  r.readAsDataURL(file);
+  reader.readAsDataURL(file);
 }
 
 function removeImage() {
-  currentThumb = null; currentFullB64 = null;
+  currentThumb = null;
   document.getElementById('preview-wrap').style.display = 'none';
   document.getElementById('img-input').value = '';
   document.getElementById('ai-status').classList.remove('show');
 }
 
-// ── Claude AI 辨識（用原圖） ──
+// ── AI 辨識（透過 Netlify Function） ──
 async function recognizeWithClaude(b64) {
   const status = document.getElementById('ai-status');
   const msg    = document.getElementById('ai-msg');
   status.classList.add('show');
-  msg.textContent = 'AI 辨識名稱與日期中…';
+  msg.textContent = '🔍 AI 辨識名稱與日期中…';
   try {
-    // 判斷圖片大小，太大先壓一下再傳
-    let sendB64 = b64;
-    if(b64.length > 1500000) {
-      // 壓縮到合理大小
-      await new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => {
-          const MAX=1200, c=document.createElement('canvas');
-          let w=img.width, h=img.height;
-          if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
-          c.width=w; c.height=h;
-          c.getContext('2d').drawImage(img,0,0,w,h);
-          sendB64 = c.toDataURL('image/jpeg',0.85).split(',')[1];
-          resolve();
-        };
-        img.src = 'data:image/jpeg;base64,' + b64;
-      });
-    }
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:500,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:sendB64}},
-          {type:'text',text:`你是食品包裝文字辨識專家。仔細看這張圖片，找出：
-1. 零食/食品的完整名稱（包含品牌，例如：義美小泡芙、旺旺仙貝、樂事洋芋片）
-2. 有效日期/保存期限/賞味期限/Best Before/EXP（轉換成 YYYY-MM-DD 格式）
-
-請仔細辨識包裝上所有文字。只回傳JSON，不要任何說明：
-{"name":"完整產品名稱","expiry":"YYYY-MM-DD","confidence":"high/medium/low","raw_date":"原始日期文字"}`}
-        ]}]
-      })
+    const res = await fetch(PROXY, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'recognize', imageBase64: b64 })
     });
     const data = await res.json();
+    const text = data.content?.[0]?.text || '{}';
     let parsed = {};
-    try { parsed = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); } catch(e){}
+    try { parsed = JSON.parse(text.replace(/```json|```/g,'').trim()); } catch(e){}
 
     const results = [];
     if(parsed.name)   { document.getElementById('f-name').value=parsed.name;     results.push('名稱：'+parsed.name); }
-    if(parsed.expiry) { document.getElementById('f-expiry').value=parsed.expiry; results.push('日期：'+parsed.expiry+(parsed.raw_date?'('+parsed.raw_date+')':'')); }
+    if(parsed.expiry) { document.getElementById('f-expiry').value=parsed.expiry; results.push('日期：'+(parsed.raw_date||parsed.expiry)); }
 
     if(results.length > 0) {
-      msg.textContent = `✅ ${results.join('　')}`;
+      msg.textContent = `✅ ${results.join('　')}（信心度 ${parsed.confidence||'?'}）`;
     } else {
-      msg.textContent = '⚠️ 未辨識到，請手動填寫（建議拍包裝正面或日期標示處）';
+      msg.textContent = '⚠️ 未辨識到，請手動填寫';
     }
   } catch(e) {
-    msg.textContent = '⚠️ AI 辨識失敗：'+e.message;
+    msg.textContent = '⚠️ 辨識失敗：'+e.message;
   }
 }
 
@@ -341,46 +311,33 @@ async function recognizeWithClaude(b64) {
 async function loadFromNotion() {
   const list = document.getElementById('active-list');
   list.innerHTML = `<div class="loading-state"><div class="spin">⏳</div><p>從 Notion 載入中…</p></div>`;
-  document.getElementById('sync-btn').textContent = '⏳ 載入中';
+  document.getElementById('sync-btn').textContent = '⏳';
   try {
     const res = await fetch(PROXY, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ action:'queryDb', token:getToken(), dbId:getDbId() })
     });
     const data = await res.json();
-    if(!data.results) {
-      list.innerHTML = `<div class="empty-state"><div class="emoji">❌</div><p>載入失敗<br>請確認 Notion 設定</p></div>`;
-      document.getElementById('sync-btn').textContent = '🔄 同步';
-      return;
-    }
-    items = data.results.map(page => {
-      const notesText = page.properties?.Notes?.rich_text?.[0]?.plain_text || '';
-      // 從 Notes 欄位解析縮圖和備註
-      let image = null, notes = notesText;
-      if(notesText.startsWith('IMG:')) {
-        const sep = notesText.indexOf('|NOTE:');
-        if(sep > -1) {
-          image = notesText.slice(4, sep);
-          notes = notesText.slice(sep+6);
-        } else {
-          image = notesText.slice(4);
-          notes = '';
-        }
-      }
-      return {
-        notionId: page.id,
-        name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
-        expiry: page.properties?.ExpiryDate?.date?.start || '',
-        purchase: page.properties?.PurchaseDate?.date?.start || '',
-        notes, image,
-        status: 'active'
-      };
-    });
+    if(!data.results) throw new Error('No results');
+
+    // 從 localStorage 讀縮圖
+    const thumbCache = JSON.parse(localStorage.getItem('thumbs') || '{}');
+
+    items = data.results.map(page => ({
+      notionId: page.id,
+      name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
+      expiry: page.properties?.ExpiryDate?.date?.start || '',
+      purchase: page.properties?.PurchaseDate?.date?.start || '',
+      notes: page.properties?.Notes?.rich_text?.[0]?.plain_text || '',
+      image: thumbCache[page.id] || null,
+      status: 'active'
+    }));
+
     document.getElementById('sync-btn').textContent = '🔄 同步';
     renderActive();
     showToast(`✅ 已載入 ${items.length} 項`);
   } catch(e) {
-    list.innerHTML = `<div class="empty-state"><div class="emoji">❌</div><p>載入失敗，請重試</p></div>`;
+    list.innerHTML = `<div class="empty-state"><div class="emoji">❌</div><p>載入失敗，請確認 Notion 設定</p></div>`;
     document.getElementById('sync-btn').textContent = '🔄 同步';
   }
 }
@@ -394,23 +351,14 @@ async function loadHistory() {
       body: JSON.stringify({ action:'queryHistory', token:getToken(), dbId:getDbId() })
     });
     const data = await res.json();
-    if(!data.results) { list.innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>載入失敗</p></div>`; return; }
-    historyItems = data.results.map(page => {
-      const notesText = page.properties?.Notes?.rich_text?.[0]?.plain_text || '';
-      let image = null, notes = notesText;
-      if(notesText.startsWith('IMG:')) {
-        const sep = notesText.indexOf('|NOTE:');
-        if(sep>-1){image=notesText.slice(4,sep);notes=notesText.slice(sep+6);}
-        else{image=notesText.slice(4);notes='';}
-      }
-      return {
-        name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
-        expiry: page.properties?.ExpiryDate?.date?.start || '',
-        statusName: page.properties?.Status?.select?.name || '',
-        archiveReason: page.properties?.Status?.select?.name === '已吃完' ? 'eaten' : 'expired',
-        image
-      };
-    });
+    if(!data.results) throw new Error();
+    const thumbCache = JSON.parse(localStorage.getItem('thumbs') || '{}');
+    historyItems = data.results.map(page => ({
+      name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
+      expiry: page.properties?.ExpiryDate?.date?.start || '',
+      archiveReason: page.properties?.Status?.select?.name === '已吃完' ? 'eaten' : 'expired',
+      image: thumbCache[page.id] || null
+    }));
     document.getElementById('history-count').textContent = historyItems.length + ' 項';
     renderHistory();
   } catch(e) {
@@ -429,18 +377,12 @@ async function addItem() {
   const btn = document.getElementById('add-btn');
   btn.disabled=true; btn.textContent='儲存中…';
 
-  // 把縮圖和備註合併存進 Notes 欄位
-  let notesValue = notes;
-  if(currentThumb) {
-    notesValue = 'IMG:' + currentThumb + (notes ? '|NOTE:'+notes : '');
-  }
-
   try {
     const props = {
       "Name":       {title:[{text:{content:name}}]},
       "ExpiryDate": {date:{start:expiry}},
       "Status":     {select:{name:'正常'}},
-      "Notes":      {rich_text:[{text:{content:notesValue.slice(0,1900)}}]} // Notion 2000字限制
+      "Notes":      {rich_text:[{text:{content:notes||''}}]}
     };
     if(purchase) props["PurchaseDate"]={date:{start:purchase}};
 
@@ -449,14 +391,20 @@ async function addItem() {
       body: JSON.stringify({ action:'createPage', token:getToken(), dbId:getDbId(), properties:props })
     });
     const data = await res.json();
+
     if(data.id) {
+      // 縮圖存 localStorage，用 Notion page ID 當 key
+      if(currentThumb) {
+        const thumbCache = JSON.parse(localStorage.getItem('thumbs') || '{}');
+        thumbCache[data.id] = currentThumb;
+        try { localStorage.setItem('thumbs', JSON.stringify(thumbCache)); } catch(e) {}
+      }
       showToast('🍪 已新增：'+name);
       resetForm();
       await loadFromNotion();
       switchTab('active');
     } else {
       showToast('❌ 新增失敗');
-      console.error(data);
     }
   } catch(e) {
     showToast('❌ 網路錯誤');
@@ -470,10 +418,9 @@ function resetForm() {
   document.getElementById('preview-wrap').style.display='none';
   document.getElementById('ai-status').classList.remove('show');
   document.getElementById('img-input').value='';
-  currentThumb=null; currentFullB64=null;
+  currentThumb=null;
 }
 
-// ── Render ──
 function renderActive() {
   const list=document.getElementById('active-list');
   let ai=[...items];
@@ -492,9 +439,7 @@ function renderActive() {
     else if(d<=7){cc='urgent';sc='chip-urgent';st=`⚠️ 剩 ${d} 天！`;}
     else if(d<=30){cc='warning';sc='chip-warning';st=`⏰ 剩 ${d} 天`;}
     else{sc='chip-ok';st=`✅ 剩 ${d} 天`;}
-    const thumb = item.image
-      ? `<div class="item-thumb"><img src="${item.image}" alt="${item.name}"></div>`
-      : `<div class="item-thumb">🍪</div>`;
+    const thumb=item.image?`<div class="item-thumb"><img src="${item.image}" alt="${item.name}"></div>`:`<div class="item-thumb">🍪</div>`;
     return `<div class="item-card ${cc}">${thumb}<div class="item-body"><div class="item-name">${item.name}</div><div class="item-dates">📅 有效：${item.expiry}${item.purchase?`<br>🛒 購買：${item.purchase}`:''}${item.notes?`<br>📝 ${item.notes}`:''}</div><span class="status-chip ${sc}">${st}</span><div class="item-actions"><button class="action-btn eat" onclick="markEaten('${item.notionId}','${item.name}')">✅ 吃掉了</button><button class="action-btn del" onclick="deleteItem('${item.notionId}','${item.name}')">🗑</button></div></div></div>`;
   }).join('');
 }
@@ -502,21 +447,21 @@ function renderActive() {
 function getDaysLeft(s){const t=new Date();t.setHours(0,0,0,0);const e=new Date(s);e.setHours(0,0,0,0);return Math.round((e-t)/86400000);}
 function setSort(type,btn){currentSort=type;document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderActive();}
 
-async function markEaten(notionId, name) {
+async function markEaten(notionId,name) {
   showToast('⏳ 更新中…');
   try {
-    await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},
+    await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'updatePage',token:getToken(),pageId:notionId,properties:{"Status":{select:{name:'已吃完'}}}})});
     showToast('✅ '+name+' 已吃完！');
     await loadFromNotion();
   } catch(e){showToast('❌ 更新失敗');}
 }
 
-async function deleteItem(notionId, name) {
+async function deleteItem(notionId,name) {
   if(!confirm('確定要刪除「'+name+'」？'))return;
   showToast('⏳ 刪除中…');
   try {
-    await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},
+    await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'updatePage',token:getToken(),pageId:notionId,properties:{"Status":{select:{name:'已過期'}}}})});
     showToast('🗑 已刪除');
     await loadFromNotion();
