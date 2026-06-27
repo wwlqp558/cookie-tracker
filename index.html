@@ -14,9 +14,12 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Helvetica Neue','PingFang TC','Microsoft JhengHei',sans-serif; background: var(--cream); color: var(--text-main); min-height: 100vh; }
-  header { background: linear-gradient(135deg, var(--dark-brown) 0%, #7A5030 100%); color: #fff; padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.18); }
-  header h1 { font-size: 1.2rem; font-weight: 700; }
-  header p { font-size: .72rem; opacity: .7; margin-top: 2px; }
+  header { background: linear-gradient(135deg, var(--dark-brown) 0%, #7A5030 100%); color: #fff; padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: space-between; }
+  header div h1 { font-size: 1.2rem; font-weight: 700; }
+  header div p { font-size: .72rem; opacity: .7; margin-top: 2px; }
+  #sync-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 20px; padding: 6px 14px; font-size: .75rem; cursor: pointer; white-space: nowrap; }
+  #sync-btn:hover { background: rgba(255,255,255,0.25); }
+
   #config-banner { background: linear-gradient(90deg,#fff3cd,#ffeaa7); border-left: 4px solid var(--alert-yellow); padding: 10px 16px; font-size: .82rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
   #config-banner span { flex:1; color:#7a5c00; }
   #config-panel { background: var(--warm-white); border-bottom: 1px solid var(--biscuit); padding: 16px; display: none; }
@@ -25,12 +28,15 @@
   .config-row label { display: block; font-size: .75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
   .config-row input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--biscuit); border-radius: 8px; font-size: .82rem; background: var(--cream); color: var(--text-main); }
   .config-save-btn { background: var(--dark-brown); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: .85rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
+
   .tabs { display: flex; background: var(--warm-white); border-bottom: 1.5px solid var(--biscuit); padding: 0 16px; }
   .tab { padding: 11px 14px; font-size: .82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2.5px solid transparent; transition: all .2s; white-space: nowrap; }
   .tab.active { color: var(--dark-brown); border-bottom-color: var(--caramel); }
+
   main { padding: 14px; max-width: 600px; margin: 0 auto; }
   .section { display: none; }
   .section.active { display: block; }
+
   .add-card { background: var(--warm-white); border-radius: 16px; padding: 18px; box-shadow: var(--card-shadow); margin-bottom: 16px; }
   .add-card h2 { font-size: .95rem; font-weight: 700; color: var(--dark-brown); margin-bottom: 14px; }
   .upload-zone { border: 2px dashed var(--biscuit); border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; background: var(--cream); transition: all .2s; }
@@ -52,12 +58,14 @@
   .form-group input:focus { outline: none; border-color: var(--caramel); }
   .add-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--dark-brown), var(--caramel)); color: #fff; border: none; border-radius: 10px; font-size: .95rem; font-weight: 700; cursor: pointer; margin-top: 4px; transition: opacity .2s; }
   .add-btn:disabled { opacity: .5; cursor: not-allowed; }
+
   .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .list-header h2 { font-size: .95rem; font-weight: 700; color: var(--dark-brown); }
   .count-badge { background: var(--biscuit); color: var(--dark-brown); border-radius: 20px; padding: 2px 10px; font-size: .73rem; font-weight: 700; }
   .sort-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .sort-btn { font-size: .73rem; padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--biscuit); background: var(--warm-white); color: var(--text-muted); cursor: pointer; }
   .sort-btn.active { background: var(--dark-brown); color: #fff; border-color: var(--dark-brown); }
+
   .item-card { background: var(--warm-white); border-radius: 14px; padding: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); display: flex; gap: 10px; align-items: flex-start; border-left: 4px solid var(--sage); position: relative; overflow: hidden; }
   .item-card.urgent { border-left-color: var(--alert-red); }
   .item-card.warning { border-left-color: var(--alert-yellow); }
@@ -77,10 +85,7 @@
   .action-btn.eat { border-color: var(--forest); color: var(--forest); }
   .action-btn.eat:hover { background: var(--forest); color: #fff; }
   .action-btn.del:hover { background: var(--alert-red); color: #fff; border-color: var(--alert-red); }
-  .action-btn.notion { border-color: #6B7280; color: #6B7280; }
-  .notion-dot { position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: #ccc; }
-  .notion-dot.synced { background: var(--forest); }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
   .history-card { background: var(--warm-white); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; opacity: .7; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
   .history-thumb { width: 42px; height: 42px; border-radius: 8px; background: var(--biscuit); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; overflow: hidden; }
   .history-thumb img { width:100%; height:100%; object-fit:cover; }
@@ -90,9 +95,13 @@
   .history-badge { font-size: .68rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; white-space: nowrap; }
   .badge-eaten { background: #EDF7F0; color: var(--forest); }
   .badge-expired { background: #F0F0F0; color: #888; }
+
+  .loading-state { text-align: center; padding: 40px 24px; color: var(--text-muted); }
+  .loading-state .spin { font-size: 2rem; animation: spin .8s linear infinite; display: inline-block; margin-bottom: 10px; }
   .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
   .empty-state .emoji { font-size: 2.8rem; margin-bottom: 10px; }
   .empty-state p { font-size: .88rem; line-height: 1.6; }
+
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--dark-brown); color: #fff; padding: 10px 20px; border-radius: 24px; font-size: .82rem; box-shadow: 0 4px 20px rgba(0,0,0,.25); transition: transform .3s; z-index: 9999; white-space: nowrap; pointer-events:none; }
   #toast.show { transform: translateX(-50%) translateY(0); }
   .fab { position: fixed; bottom: 24px; right: 20px; width: 54px; height: 54px; background: linear-gradient(135deg, var(--dark-brown), var(--caramel)); color: #fff; border: none; border-radius: 50%; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 20px rgba(92,61,30,.35); display: flex; align-items: center; justify-content: center; z-index: 50; }
@@ -101,8 +110,11 @@
 </head>
 <body>
 <header>
-  <h1>🍪 餅乾效期管家</h1>
-  <p>拍照辨識 · Notion 同步 · 到期提醒</p>
+  <div>
+    <h1>🍪 餅乾效期管家</h1>
+    <p>拍照辨識 · Notion 同步 · 到期提醒</p>
+  </div>
+  <button id="sync-btn" onclick="loadFromNotion()">🔄 同步</button>
 </header>
 
 <div id="config-banner" onclick="toggleConfig()">
@@ -159,7 +171,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label>備註（放在哪）</label>
+          <label>備註</label>
           <input type="text" id="f-notes" placeholder="例：第二層架子左邊">
         </div>
         <button class="add-btn" id="add-btn" onclick="addItem()">＋ 加入清單</button>
@@ -193,21 +205,19 @@
 <div id="toast"></div>
 
 <script>
-// ══ 設定 ══
 const DEFAULT_TOKEN = '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';
 const DEFAULT_DB    = 'b11ab4a9b0a74c4a95b2df906ccb3a8c';
-// Netlify Function 代理網址（部署後自動有效）
-const PROXY_BASE    = '/.netlify/functions/notion-proxy';
+const PROXY         = '/.netlify/functions/notion-proxy';
 
 function getToken() { return localStorage.getItem('notion_token') || DEFAULT_TOKEN; }
 function getDbId()  { return localStorage.getItem('notion_db')    || DEFAULT_DB; }
 
-let items   = JSON.parse(localStorage.getItem('cookie_items')   || '[]');
-let history = JSON.parse(localStorage.getItem('cookie_history') || '[]');
+let items   = [];
+let history = [];
 let currentSort = 'expiry';
 let currentThumb = null;
 
-// ══ Config ══
+// ── Config ──
 function toggleConfig() {
   const p = document.getElementById('config-panel');
   p.classList.toggle('open');
@@ -219,19 +229,88 @@ function saveConfig() {
   localStorage.setItem('notion_db',    document.getElementById('notion-db').value.trim());
   document.getElementById('config-panel').classList.remove('open');
   showToast('✅ 設定已儲存');
+  loadFromNotion();
 }
 
-// ══ Tabs ══
+// ── Tabs ──
 function switchTab(name) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('sec-'+name).classList.add('active');
   document.querySelectorAll('.tab')[{active:0,add:1,history:2}[name]].classList.add('active');
   if(name==='active')  renderActive();
-  if(name==='history') renderHistory();
+  if(name==='history') loadHistory();
 }
 
-// ══ 圖片壓縮 ══
+// ── 從 Notion 讀取資料 ──
+async function loadFromNotion() {
+  const list = document.getElementById('active-list');
+  list.innerHTML = `<div class="loading-state"><div class="spin">⏳</div><p>從 Notion 載入中…</p></div>`;
+  document.getElementById('sync-btn').textContent = '⏳ 載入中';
+
+  try {
+    const res = await fetch(PROXY, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'queryDb', token: getToken(), dbId: getDbId() })
+    });
+    const data = await res.json();
+
+    if (!data.results) {
+      list.innerHTML = `<div class="empty-state"><div class="emoji">❌</div><p>載入失敗<br>請確認 Notion 設定</p></div>`;
+      document.getElementById('sync-btn').textContent = '🔄 同步';
+      return;
+    }
+
+    // 把 Notion 格式轉成 app 格式
+    items = data.results.map(page => ({
+      id: page.id,
+      notionId: page.id,
+      name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
+      expiry: page.properties?.ExpiryDate?.date?.start || '',
+      purchase: page.properties?.PurchaseDate?.date?.start || '',
+      notes: page.properties?.Notes?.rich_text?.[0]?.plain_text || '',
+      status: page.properties?.Status?.select?.name === '已吃完' ? 'eaten' : 'active',
+      image: null,
+      notionSynced: true
+    })).filter(i => i.status === 'active');
+
+    document.getElementById('active-count').textContent = items.length + ' 項';
+    document.getElementById('sync-btn').textContent = '🔄 同步';
+    renderActive();
+    showToast(`✅ 已載入 ${items.length} 項`);
+  } catch(e) {
+    list.innerHTML = `<div class="empty-state"><div class="emoji">❌</div><p>載入失敗，請重試</p></div>`;
+    document.getElementById('sync-btn').textContent = '🔄 同步';
+  }
+}
+
+async function loadHistory() {
+  const list = document.getElementById('history-list');
+  list.innerHTML = `<div class="loading-state"><div class="spin">⏳</div><p>載入歷史中…</p></div>`;
+  try {
+    const res = await fetch(PROXY, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'queryHistory', token: getToken(), dbId: getDbId() })
+    });
+    const data = await res.json();
+    if (!data.results) { list.innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>載入失敗</p></div>`; return; }
+    history = data.results.map(page => ({
+      id: page.id,
+      name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
+      expiry: page.properties?.ExpiryDate?.date?.start || '',
+      status: page.properties?.Status?.select?.name || '',
+      archiveReason: page.properties?.Status?.select?.name === '已吃完' ? 'eaten' : 'expired'
+    }));
+    document.getElementById('history-count').textContent = history.length + ' 項';
+    renderHistory();
+  } catch(e) {
+    list.innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>載入失敗</p></div>`;
+  }
+}
+
+// ── 圖片壓縮 ──
 function compressImage(file, cb) {
   const r = new FileReader();
   r.onload = e => {
@@ -257,9 +336,7 @@ async function handleImage(input) {
     document.getElementById('preview-wrap').style.display = 'block';
   });
   const r = new FileReader();
-  r.onload = async e => {
-    await recognizeWithClaude(e.target.result.split(',')[1]);
-  };
+  r.onload = async e => { await recognizeWithClaude(e.target.result.split(',')[1]); };
   r.readAsDataURL(file);
 }
 
@@ -270,7 +347,7 @@ function removeImage() {
   document.getElementById('ai-status').classList.remove('show');
 }
 
-// ══ Claude AI 辨識 ══
+// ── Claude AI 辨識 ──
 async function recognizeWithClaude(b64) {
   const status = document.getElementById('ai-status');
   const msg    = document.getElementById('ai-msg');
@@ -303,7 +380,7 @@ async function recognizeWithClaude(b64) {
   }
 }
 
-// ══ 新增 ══
+// ── 新增 ──
 async function addItem() {
   const name=document.getElementById('f-name').value.trim();
   const expiry=document.getElementById('f-expiry').value;
@@ -311,14 +388,37 @@ async function addItem() {
   const notes=document.getElementById('f-notes').value.trim();
   if(!name||!expiry){showToast('❗ 請填寫名稱與有效日期');return;}
   const btn=document.getElementById('add-btn');
-  btn.disabled=true; btn.textContent='儲存中…';
-  const item={id:Date.now().toString(),name,expiry,purchase,notes,image:currentThumb||null,added:new Date().toISOString(),status:'active',notionId:null,notionSynced:false};
-  items.push(item); saveItems();
-  await syncToNotion(item);
+  btn.disabled=true; btn.textContent='同步到 Notion 中…';
+
+  try {
+    const props = {
+      "Name":       {title:[{text:{content:name}}]},
+      "ExpiryDate": {date:{start:expiry}},
+      "Status":     {select:{name:'正常'}},
+      "Notes":      {rich_text:[{text:{content:notes||''}}]}
+    };
+    if(purchase) props["PurchaseDate"]={date:{start:purchase}};
+
+    const res = await fetch(PROXY, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'createPage', token:getToken(), dbId:getDbId(), properties:props })
+    });
+    const data = await res.json();
+
+    if(data.id) {
+      showToast('🍪 已新增：'+name);
+      resetForm();
+      await loadFromNotion();
+      switchTab('active');
+    } else {
+      showToast('❌ 新增失敗，請確認 Notion 設定');
+    }
+  } catch(e) {
+    showToast('❌ 網路錯誤，請重試');
+  }
+
   btn.disabled=false; btn.textContent='＋ 加入清單';
-  resetForm();
-  showToast('🍪 已加入：'+name);
-  switchTab('active');
 }
 
 function resetForm() {
@@ -330,56 +430,10 @@ function resetForm() {
   currentThumb=null;
 }
 
-// ══ Notion 同步（透過 Netlify Function 代理） ══
-async function syncToNotion(item) {
-  try {
-    const props = {
-      "Name":       {title:[{text:{content:item.name}}]},
-      "ExpiryDate": {date:{start:item.expiry}},
-      "Status":     {select:{name:'正常'}},
-      "Notes":      {rich_text:[{text:{content:item.notes||''}}]}
-    };
-    if(item.purchase) props["PurchaseDate"]={date:{start:item.purchase}};
-
-    const res = await fetch(PROXY_BASE, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        action:'createPage',
-        token: getToken(),
-        dbId:  getDbId(),
-        properties: props
-      })
-    });
-    const data = await res.json();
-    if(data.id) {
-      item.notionId=data.id; item.notionSynced=true; saveItems();
-    } else {
-      console.warn('Notion error:', data);
-    }
-  } catch(e) { console.warn('Sync failed:', e); }
-}
-
-async function updateNotionStatus(item, statusName) {
-  if(!item.notionId) return;
-  try {
-    await fetch(PROXY_BASE, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        action:'updatePage',
-        token: getToken(),
-        pageId: item.notionId,
-        properties: {"Status":{select:{name:statusName}}}
-      })
-    });
-  } catch(e){}
-}
-
-// ══ Render ══
+// ── Render ──
 function renderActive() {
   const list=document.getElementById('active-list');
-  let ai=items.filter(i=>i.status==='active');
+  let ai=[...items].filter(i=>i.status==='active');
   ai.sort((a,b)=>{
     if(currentSort==='expiry') return new Date(a.expiry)-new Date(b.expiry);
     if(currentSort==='name')   return a.name.localeCompare(b.name,'zh-TW');
@@ -395,59 +449,55 @@ function renderActive() {
     else if(d<=7){cc='urgent';sc='chip-urgent';st=`⚠️ 剩 ${d} 天！`;}
     else if(d<=30){cc='warning';sc='chip-warning';st=`⏰ 剩 ${d} 天`;}
     else{sc='chip-ok';st=`✅ 剩 ${d} 天`;}
-    const dot=`<div class="notion-dot ${item.notionSynced?'synced':''}" title="${item.notionSynced?'已同步':'未同步'}"></div>`;
     const thumb=item.image?`<div class="item-thumb"><img src="${item.image}" alt=""></div>`:`<div class="item-thumb">🍪</div>`;
-    const retry=!item.notionSynced?`<button class="action-btn notion" onclick="retrySyncItem('${item.id}')">☁ 同步</button>`:'';
-    return `<div class="item-card ${cc}" id="card-${item.id}">${dot}${thumb}<div class="item-body"><div class="item-name">${item.name}</div><div class="item-dates">📅 有效：${item.expiry}${item.purchase?`<br>🛒 購買：${item.purchase}`:''}${item.notes?`<br>📝 ${item.notes}`:''}</div><span class="status-chip ${sc}">${st}</span><div class="item-actions"><button class="action-btn eat" onclick="markEaten('${item.id}')">✅ 吃掉了</button>${retry}<button class="action-btn del" onclick="deleteItem('${item.id}')">🗑</button></div></div></div>`;
+    return `<div class="item-card ${cc}">${thumb}<div class="item-body"><div class="item-name">${item.name}</div><div class="item-dates">📅 有效：${item.expiry}${item.purchase?`<br>🛒 購買：${item.purchase}`:''}${item.notes?`<br>📝 ${item.notes}`:''}</div><span class="status-chip ${sc}">${st}</span><div class="item-actions"><button class="action-btn eat" onclick="markEaten('${item.notionId}','${item.name}')">✅ 吃掉了</button><button class="action-btn del" onclick="deleteItem('${item.notionId}','${item.name}')">🗑</button></div></div></div>`;
   }).join('');
 }
 
 function getDaysLeft(s){const t=new Date();t.setHours(0,0,0,0);const e=new Date(s);e.setHours(0,0,0,0);return Math.round((e-t)/86400000);}
 function setSort(type,btn){currentSort=type;document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderActive();}
 
-async function markEaten(id){
-  const item=items.find(i=>i.id===id);if(!item)return;
-  item.status='eaten';item.doneDate=new Date().toISOString();
-  history.unshift({...item,archiveReason:'eaten'});
-  items=items.filter(i=>i.id!==id);saveItems();
-  await updateNotionStatus(item,'已吃完');
-  showToast('✅ 已標記吃完！');renderActive();
-}
-async function deleteItem(id){if(!confirm('確定要刪除？'))return;items=items.filter(i=>i.id!==id);saveItems();showToast('🗑 已刪除');renderActive();}
-async function retrySyncItem(id){
-  const item=items.find(i=>i.id===id);if(!item)return;
-  showToast('☁ 同步中…');await syncToNotion(item);
-  showToast(item.notionSynced?'✅ 已同步到 Notion！':'❌ 同步失敗');renderActive();
+async function markEaten(notionId, name) {
+  showToast('⏳ 更新中…');
+  try {
+    await fetch(PROXY, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'updatePage', token:getToken(), pageId:notionId, properties:{"Status":{select:{name:'已吃完'}}} })
+    });
+    showToast('✅ '+name+' 已吃完！');
+    await loadFromNotion();
+  } catch(e) { showToast('❌ 更新失敗'); }
 }
 
-function renderHistory(){
+async function deleteItem(notionId, name) {
+  if(!confirm('確定要刪除「'+name+'」？')) return;
+  showToast('⏳ 刪除中…');
+  try {
+    await fetch(PROXY, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'updatePage', token:getToken(), pageId:notionId, properties:{"Status":{select:{name:'已過期'}}} })
+    });
+    showToast('🗑 已刪除');
+    await loadFromNotion();
+  } catch(e) { showToast('❌ 刪除失敗'); }
+}
+
+function renderHistory() {
   const list=document.getElementById('history-list');
   document.getElementById('history-count').textContent=history.length+' 項';
   if(!history.length){list.innerHTML=`<div class="empty-state"><div class="emoji">📦</div><p>還沒有歷史紀錄</p></div>`;return;}
   list.innerHTML=history.map(item=>{
     const r=item.archiveReason==='eaten'?'已吃完':'已過期';
     const bc=item.archiveReason==='eaten'?'badge-eaten':'badge-expired';
-    const dd=item.doneDate?new Date(item.doneDate).toLocaleDateString('zh-TW'):'';
-    const thumb=item.image?`<div class="history-thumb"><img src="${item.image}" alt=""></div>`:`<div class="history-thumb">🍪</div>`;
-    return `<div class="history-card">${thumb}<div class="history-info"><div class="history-name">${item.name}</div><div class="history-meta">效期 ${item.expiry}${dd?'　'+dd:''}</div></div><span class="history-badge ${bc}">${r}</span></div>`;
+    return `<div class="history-card"><div class="history-thumb">🍪</div><div class="history-info"><div class="history-name">${item.name}</div><div class="history-meta">效期 ${item.expiry}</div></div><span class="history-badge ${bc}">${r}</span></div>`;
   }).join('');
 }
 
-function autoArchiveExpired(){
-  const today=new Date();today.setHours(0,0,0,0);
-  const ta=items.filter(i=>{if(i.status!=='active')return false;const e=new Date(i.expiry);e.setHours(0,0,0,0);return Math.round((today-e)/86400000)>30;});
-  ta.forEach(async item=>{item.status='expired';item.doneDate=new Date().toISOString();history.unshift({...item,archiveReason:'expired'});items=items.filter(i=>i.id!==item.id);await updateNotionStatus(item,'已過期');});
-  if(ta.length)saveItems();
-}
-
-function saveItems(){
-  try{localStorage.setItem('cookie_items',JSON.stringify(items));localStorage.setItem('cookie_history',JSON.stringify(history));}
-  catch(e){items.forEach(i=>i.image=null);history.forEach(i=>i.image=null);localStorage.setItem('cookie_items',JSON.stringify(items));localStorage.setItem('cookie_history',JSON.stringify(history));}
-}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
-autoArchiveExpired();renderActive();
+// ── 啟動時從 Notion 載入 ──
 document.getElementById('f-purchase').value=new Date().toISOString().split('T')[0];
+loadFromNotion();
 </script>
 </body>
 </html>
