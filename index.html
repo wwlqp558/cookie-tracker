@@ -18,8 +18,6 @@
   header div h1 { font-size: 1.2rem; font-weight: 700; }
   header div p { font-size: .72rem; opacity: .7; margin-top: 2px; }
   #sync-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 20px; padding: 6px 14px; font-size: .75rem; cursor: pointer; white-space: nowrap; }
-  #sync-btn:hover { background: rgba(255,255,255,0.25); }
-
   #config-banner { background: linear-gradient(90deg,#fff3cd,#ffeaa7); border-left: 4px solid var(--alert-yellow); padding: 10px 16px; font-size: .82rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
   #config-banner span { flex:1; color:#7a5c00; }
   #config-panel { background: var(--warm-white); border-bottom: 1px solid var(--biscuit); padding: 16px; display: none; }
@@ -28,15 +26,12 @@
   .config-row label { display: block; font-size: .75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
   .config-row input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--biscuit); border-radius: 8px; font-size: .82rem; background: var(--cream); color: var(--text-main); }
   .config-save-btn { background: var(--dark-brown); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: .85rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
-
   .tabs { display: flex; background: var(--warm-white); border-bottom: 1.5px solid var(--biscuit); padding: 0 16px; }
   .tab { padding: 11px 14px; font-size: .82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2.5px solid transparent; transition: all .2s; white-space: nowrap; }
   .tab.active { color: var(--dark-brown); border-bottom-color: var(--caramel); }
-
   main { padding: 14px; max-width: 600px; margin: 0 auto; }
   .section { display: none; }
   .section.active { display: block; }
-
   .add-card { background: var(--warm-white); border-radius: 16px; padding: 18px; box-shadow: var(--card-shadow); margin-bottom: 16px; }
   .add-card h2 { font-size: .95rem; font-weight: 700; color: var(--dark-brown); margin-bottom: 14px; }
   .upload-zone { border: 2px dashed var(--biscuit); border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; background: var(--cream); transition: all .2s; }
@@ -45,8 +40,8 @@
   .upload-zone p { font-size: .8rem; color: var(--text-muted); line-height: 1.5; }
   .upload-zone input { display: none; }
   #preview-wrap { margin-top: 10px; display: none; position: relative; }
-  #preview-img { width: 100%; border-radius: 10px; max-height: 180px; object-fit: cover; display: block; }
-  #remove-img { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.5); color:#fff; border:none; border-radius: 50%; width:24px; height:24px; font-size:.8rem; cursor:pointer; }
+  #preview-img { width: 100%; border-radius: 10px; max-height: 200px; object-fit: cover; display: block; }
+  #remove-img { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.55); color:#fff; border:none; border-radius: 50%; width:26px; height:26px; font-size:.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   .ai-status { display: none; align-items: center; gap: 8px; font-size: .78rem; color: var(--forest); margin-top: 8px; background: #EDF7F0; border-radius: 8px; padding: 8px 12px; }
   .ai-status.show { display: flex; }
   .spinner { width: 15px; height: 15px; border: 2px solid var(--sage); border-top-color: var(--forest); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink:0; }
@@ -58,20 +53,18 @@
   .form-group input:focus { outline: none; border-color: var(--caramel); }
   .add-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--dark-brown), var(--caramel)); color: #fff; border: none; border-radius: 10px; font-size: .95rem; font-weight: 700; cursor: pointer; margin-top: 4px; transition: opacity .2s; }
   .add-btn:disabled { opacity: .5; cursor: not-allowed; }
-
   .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .list-header h2 { font-size: .95rem; font-weight: 700; color: var(--dark-brown); }
   .count-badge { background: var(--biscuit); color: var(--dark-brown); border-radius: 20px; padding: 2px 10px; font-size: .73rem; font-weight: 700; }
   .sort-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .sort-btn { font-size: .73rem; padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--biscuit); background: var(--warm-white); color: var(--text-muted); cursor: pointer; }
   .sort-btn.active { background: var(--dark-brown); color: #fff; border-color: var(--dark-brown); }
-
   .item-card { background: var(--warm-white); border-radius: 14px; padding: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); display: flex; gap: 10px; align-items: flex-start; border-left: 4px solid var(--sage); position: relative; overflow: hidden; }
   .item-card.urgent { border-left-color: var(--alert-red); }
   .item-card.warning { border-left-color: var(--alert-yellow); }
   .item-card.expired { border-left-color: #aaa; opacity: .65; }
-  .item-thumb { width: 58px; height: 58px; border-radius: 10px; flex-shrink: 0; background: var(--biscuit); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; overflow: hidden; }
-  .item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .item-thumb { width: 64px; height: 64px; border-radius: 10px; flex-shrink: 0; background: var(--biscuit); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; overflow: hidden; }
+  .item-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
   .item-body { flex: 1; min-width: 0; }
   .item-name { font-weight: 700; font-size: .92rem; color: var(--dark-brown); margin-bottom: 3px; }
   .item-dates { font-size: .72rem; color: var(--text-muted); margin-bottom: 6px; line-height: 1.6; }
@@ -85,23 +78,20 @@
   .action-btn.eat { border-color: var(--forest); color: var(--forest); }
   .action-btn.eat:hover { background: var(--forest); color: #fff; }
   .action-btn.del:hover { background: var(--alert-red); color: #fff; border-color: var(--alert-red); }
-
   .history-card { background: var(--warm-white); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; opacity: .7; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-  .history-thumb { width: 42px; height: 42px; border-radius: 8px; background: var(--biscuit); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; overflow: hidden; }
-  .history-thumb img { width:100%; height:100%; object-fit:cover; }
+  .history-thumb { width: 44px; height: 44px; border-radius: 8px; background: var(--biscuit); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
+  .history-thumb img { width:100%; height:100%; object-fit:cover; border-radius:8px; }
   .history-info { flex: 1; }
   .history-name { font-weight: 600; font-size: .85rem; }
   .history-meta { font-size: .7rem; color: var(--text-muted); margin-top: 2px; }
   .history-badge { font-size: .68rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; white-space: nowrap; }
   .badge-eaten { background: #EDF7F0; color: var(--forest); }
   .badge-expired { background: #F0F0F0; color: #888; }
-
   .loading-state { text-align: center; padding: 40px 24px; color: var(--text-muted); }
   .loading-state .spin { font-size: 2rem; animation: spin .8s linear infinite; display: inline-block; margin-bottom: 10px; }
   .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
   .empty-state .emoji { font-size: 2.8rem; margin-bottom: 10px; }
   .empty-state p { font-size: .88rem; line-height: 1.6; }
-
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--dark-brown); color: #fff; padding: 10px 20px; border-radius: 24px; font-size: .82rem; box-shadow: 0 4px 20px rgba(0,0,0,.25); transition: transform .3s; z-index: 9999; white-space: nowrap; pointer-events:none; }
   #toast.show { transform: translateX(-50%) translateY(0); }
   .fab { position: fixed; bottom: 24px; right: 20px; width: 54px; height: 54px; background: linear-gradient(135deg, var(--dark-brown), var(--caramel)); color: #fff; border: none; border-radius: 50%; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 20px rgba(92,61,30,.35); display: flex; align-items: center; justify-content: center; z-index: 50; }
@@ -212,17 +202,15 @@ const PROXY         = '/.netlify/functions/notion-proxy';
 function getToken() { return localStorage.getItem('notion_token') || DEFAULT_TOKEN; }
 function getDbId()  { return localStorage.getItem('notion_db')    || DEFAULT_DB; }
 
-let items   = [];
-let history = [];
-let currentSort = 'expiry';
-let currentThumb = null;
+let items = [], historyItems = [], currentSort = 'expiry';
+let currentThumb = null; // 壓縮縮圖 base64
+let currentFullB64 = null; // 原圖 base64（給 AI 用，不存）
 
 // ── Config ──
 function toggleConfig() {
-  const p = document.getElementById('config-panel');
-  p.classList.toggle('open');
+  document.getElementById('config-panel').classList.toggle('open');
   document.getElementById('notion-token').value = getToken();
-  document.getElementById('notion-db').value    = getDbId();
+  document.getElementById('notion-db').value = getDbId();
 }
 function saveConfig() {
   localStorage.setItem('notion_token', document.getElementById('notion-token').value.trim());
@@ -242,40 +230,152 @@ function switchTab(name) {
   if(name==='history') loadHistory();
 }
 
-// ── 從 Notion 讀取資料 ──
+// ── 圖片處理：原圖給AI，縮圖存Notion ──
+function compressToThumb(file, cb) {
+  const r = new FileReader();
+  r.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX=300, c=document.createElement('canvas');
+      let w=img.width, h=img.height;
+      if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+      c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      cb(c.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = e.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+async function handleImage(input) {
+  const file = input.files[0]; if(!file) return;
+
+  // 讀原圖（給AI辨識用）
+  const r = new FileReader();
+  r.onload = async e => {
+    const dataUrl = e.target.result;
+    currentFullB64 = dataUrl.split(',')[1];
+
+    // 顯示預覽（原圖）
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('preview-wrap').style.display = 'block';
+
+    // 同時壓縮成縮圖存起來
+    compressToThumb(file, thumb => { currentThumb = thumb; });
+
+    // 用原圖給 AI 辨識
+    await recognizeWithClaude(currentFullB64);
+  };
+  r.readAsDataURL(file);
+}
+
+function removeImage() {
+  currentThumb = null; currentFullB64 = null;
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('img-input').value = '';
+  document.getElementById('ai-status').classList.remove('show');
+}
+
+// ── Claude AI 辨識（用原圖） ──
+async function recognizeWithClaude(b64) {
+  const status = document.getElementById('ai-status');
+  const msg    = document.getElementById('ai-msg');
+  status.classList.add('show');
+  msg.textContent = 'AI 辨識名稱與日期中…';
+  try {
+    // 判斷圖片大小，太大先壓一下再傳
+    let sendB64 = b64;
+    if(b64.length > 1500000) {
+      // 壓縮到合理大小
+      await new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX=1200, c=document.createElement('canvas');
+          let w=img.width, h=img.height;
+          if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+          c.width=w; c.height=h;
+          c.getContext('2d').drawImage(img,0,0,w,h);
+          sendB64 = c.toDataURL('image/jpeg',0.85).split(',')[1];
+          resolve();
+        };
+        img.src = 'data:image/jpeg;base64,' + b64;
+      });
+    }
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:500,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:sendB64}},
+          {type:'text',text:`你是食品包裝文字辨識專家。仔細看這張圖片，找出：
+1. 零食/食品的完整名稱（包含品牌，例如：義美小泡芙、旺旺仙貝、樂事洋芋片）
+2. 有效日期/保存期限/賞味期限/Best Before/EXP（轉換成 YYYY-MM-DD 格式）
+
+請仔細辨識包裝上所有文字。只回傳JSON，不要任何說明：
+{"name":"完整產品名稱","expiry":"YYYY-MM-DD","confidence":"high/medium/low","raw_date":"原始日期文字"}`}
+        ]}]
+      })
+    });
+    const data = await res.json();
+    let parsed = {};
+    try { parsed = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); } catch(e){}
+
+    const results = [];
+    if(parsed.name)   { document.getElementById('f-name').value=parsed.name;     results.push('名稱：'+parsed.name); }
+    if(parsed.expiry) { document.getElementById('f-expiry').value=parsed.expiry; results.push('日期：'+parsed.expiry+(parsed.raw_date?'('+parsed.raw_date+')':'')); }
+
+    if(results.length > 0) {
+      msg.textContent = `✅ ${results.join('　')}`;
+    } else {
+      msg.textContent = '⚠️ 未辨識到，請手動填寫（建議拍包裝正面或日期標示處）';
+    }
+  } catch(e) {
+    msg.textContent = '⚠️ AI 辨識失敗：'+e.message;
+  }
+}
+
+// ── 從 Notion 讀取 ──
 async function loadFromNotion() {
   const list = document.getElementById('active-list');
   list.innerHTML = `<div class="loading-state"><div class="spin">⏳</div><p>從 Notion 載入中…</p></div>`;
   document.getElementById('sync-btn').textContent = '⏳ 載入中';
-
   try {
     const res = await fetch(PROXY, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ action: 'queryDb', token: getToken(), dbId: getDbId() })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'queryDb', token:getToken(), dbId:getDbId() })
     });
     const data = await res.json();
-
-    if (!data.results) {
+    if(!data.results) {
       list.innerHTML = `<div class="empty-state"><div class="emoji">❌</div><p>載入失敗<br>請確認 Notion 設定</p></div>`;
       document.getElementById('sync-btn').textContent = '🔄 同步';
       return;
     }
-
-    // 把 Notion 格式轉成 app 格式
-    items = data.results.map(page => ({
-      id: page.id,
-      notionId: page.id,
-      name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
-      expiry: page.properties?.ExpiryDate?.date?.start || '',
-      purchase: page.properties?.PurchaseDate?.date?.start || '',
-      notes: page.properties?.Notes?.rich_text?.[0]?.plain_text || '',
-      status: page.properties?.Status?.select?.name === '已吃完' ? 'eaten' : 'active',
-      image: null,
-      notionSynced: true
-    })).filter(i => i.status === 'active');
-
-    document.getElementById('active-count').textContent = items.length + ' 項';
+    items = data.results.map(page => {
+      const notesText = page.properties?.Notes?.rich_text?.[0]?.plain_text || '';
+      // 從 Notes 欄位解析縮圖和備註
+      let image = null, notes = notesText;
+      if(notesText.startsWith('IMG:')) {
+        const sep = notesText.indexOf('|NOTE:');
+        if(sep > -1) {
+          image = notesText.slice(4, sep);
+          notes = notesText.slice(sep+6);
+        } else {
+          image = notesText.slice(4);
+          notes = '';
+        }
+      }
+      return {
+        notionId: page.id,
+        name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
+        expiry: page.properties?.ExpiryDate?.date?.start || '',
+        purchase: page.properties?.PurchaseDate?.date?.start || '',
+        notes, image,
+        status: 'active'
+      };
+    });
     document.getElementById('sync-btn').textContent = '🔄 同步';
     renderActive();
     showToast(`✅ 已載入 ${items.length} 項`);
@@ -290,134 +390,77 @@ async function loadHistory() {
   list.innerHTML = `<div class="loading-state"><div class="spin">⏳</div><p>載入歷史中…</p></div>`;
   try {
     const res = await fetch(PROXY, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ action: 'queryHistory', token: getToken(), dbId: getDbId() })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'queryHistory', token:getToken(), dbId:getDbId() })
     });
     const data = await res.json();
-    if (!data.results) { list.innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>載入失敗</p></div>`; return; }
-    history = data.results.map(page => ({
-      id: page.id,
-      name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
-      expiry: page.properties?.ExpiryDate?.date?.start || '',
-      status: page.properties?.Status?.select?.name || '',
-      archiveReason: page.properties?.Status?.select?.name === '已吃完' ? 'eaten' : 'expired'
-    }));
-    document.getElementById('history-count').textContent = history.length + ' 項';
+    if(!data.results) { list.innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>載入失敗</p></div>`; return; }
+    historyItems = data.results.map(page => {
+      const notesText = page.properties?.Notes?.rich_text?.[0]?.plain_text || '';
+      let image = null, notes = notesText;
+      if(notesText.startsWith('IMG:')) {
+        const sep = notesText.indexOf('|NOTE:');
+        if(sep>-1){image=notesText.slice(4,sep);notes=notesText.slice(sep+6);}
+        else{image=notesText.slice(4);notes='';}
+      }
+      return {
+        name: page.properties?.Name?.title?.[0]?.plain_text || '未命名',
+        expiry: page.properties?.ExpiryDate?.date?.start || '',
+        statusName: page.properties?.Status?.select?.name || '',
+        archiveReason: page.properties?.Status?.select?.name === '已吃完' ? 'eaten' : 'expired',
+        image
+      };
+    });
+    document.getElementById('history-count').textContent = historyItems.length + ' 項';
     renderHistory();
   } catch(e) {
     list.innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>載入失敗</p></div>`;
   }
 }
 
-// ── 圖片壓縮 ──
-function compressImage(file, cb) {
-  const r = new FileReader();
-  r.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX=200, c=document.createElement('canvas');
-      let w=img.width, h=img.height;
-      if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
-      c.width=w; c.height=h;
-      c.getContext('2d').drawImage(img,0,0,w,h);
-      cb(c.toDataURL('image/jpeg',0.6));
-    };
-    img.src = e.target.result;
-  };
-  r.readAsDataURL(file);
-}
-
-async function handleImage(input) {
-  const file = input.files[0]; if(!file) return;
-  compressImage(file, thumb => {
-    currentThumb = thumb;
-    document.getElementById('preview-img').src = thumb;
-    document.getElementById('preview-wrap').style.display = 'block';
-  });
-  const r = new FileReader();
-  r.onload = async e => { await recognizeWithClaude(e.target.result.split(',')[1]); };
-  r.readAsDataURL(file);
-}
-
-function removeImage() {
-  currentThumb = null;
-  document.getElementById('preview-wrap').style.display = 'none';
-  document.getElementById('img-input').value = '';
-  document.getElementById('ai-status').classList.remove('show');
-}
-
-// ── Claude AI 辨識 ──
-async function recognizeWithClaude(b64) {
-  const status = document.getElementById('ai-status');
-  const msg    = document.getElementById('ai-msg');
-  status.classList.add('show');
-  msg.textContent = 'AI 辨識名稱與日期中…';
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:300,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
-          {type:'text',text:`你是食品包裝辨識專家。請從圖片中找出：
-1. 零食/食品名稱（品牌+產品名）
-2. 有效日期（EXP、有效期限、賞味期限等）
-只回傳JSON不要說明：{"name":"名稱或空字串","expiry":"YYYY-MM-DD或空字串","confidence":"high/medium/low"}`}
-        ]}]
-      })
-    });
-    const data = await res.json();
-    let parsed = {};
-    try { parsed = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); } catch(e){}
-    const results = [];
-    if(parsed.name)   { document.getElementById('f-name').value=parsed.name;     results.push('名稱'); }
-    if(parsed.expiry) { document.getElementById('f-expiry').value=parsed.expiry; results.push('日期'); }
-    msg.textContent = results.length ? `✅ 已辨識：${results.join('、')}（信心度 ${parsed.confidence||'?'}）` : '⚠️ 未辨識到，請手動填寫';
-  } catch(e) {
-    msg.textContent = '⚠️ AI 辨識失敗，請手動填寫';
-  }
-}
-
 // ── 新增 ──
 async function addItem() {
-  const name=document.getElementById('f-name').value.trim();
-  const expiry=document.getElementById('f-expiry').value;
-  const purchase=document.getElementById('f-purchase').value;
-  const notes=document.getElementById('f-notes').value.trim();
+  const name    = document.getElementById('f-name').value.trim();
+  const expiry  = document.getElementById('f-expiry').value;
+  const purchase= document.getElementById('f-purchase').value;
+  const notes   = document.getElementById('f-notes').value.trim();
   if(!name||!expiry){showToast('❗ 請填寫名稱與有效日期');return;}
-  const btn=document.getElementById('add-btn');
-  btn.disabled=true; btn.textContent='同步到 Notion 中…';
+
+  const btn = document.getElementById('add-btn');
+  btn.disabled=true; btn.textContent='儲存中…';
+
+  // 把縮圖和備註合併存進 Notes 欄位
+  let notesValue = notes;
+  if(currentThumb) {
+    notesValue = 'IMG:' + currentThumb + (notes ? '|NOTE:'+notes : '');
+  }
 
   try {
     const props = {
       "Name":       {title:[{text:{content:name}}]},
       "ExpiryDate": {date:{start:expiry}},
       "Status":     {select:{name:'正常'}},
-      "Notes":      {rich_text:[{text:{content:notes||''}}]}
+      "Notes":      {rich_text:[{text:{content:notesValue.slice(0,1900)}}]} // Notion 2000字限制
     };
     if(purchase) props["PurchaseDate"]={date:{start:purchase}};
 
     const res = await fetch(PROXY, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ action:'createPage', token:getToken(), dbId:getDbId(), properties:props })
     });
     const data = await res.json();
-
     if(data.id) {
       showToast('🍪 已新增：'+name);
       resetForm();
       await loadFromNotion();
       switchTab('active');
     } else {
-      showToast('❌ 新增失敗，請確認 Notion 設定');
+      showToast('❌ 新增失敗');
+      console.error(data);
     }
   } catch(e) {
-    showToast('❌ 網路錯誤，請重試');
+    showToast('❌ 網路錯誤');
   }
-
   btn.disabled=false; btn.textContent='＋ 加入清單';
 }
 
@@ -427,13 +470,13 @@ function resetForm() {
   document.getElementById('preview-wrap').style.display='none';
   document.getElementById('ai-status').classList.remove('show');
   document.getElementById('img-input').value='';
-  currentThumb=null;
+  currentThumb=null; currentFullB64=null;
 }
 
 // ── Render ──
 function renderActive() {
   const list=document.getElementById('active-list');
-  let ai=[...items].filter(i=>i.status==='active');
+  let ai=[...items];
   ai.sort((a,b)=>{
     if(currentSort==='expiry') return new Date(a.expiry)-new Date(b.expiry);
     if(currentSort==='name')   return a.name.localeCompare(b.name,'zh-TW');
@@ -449,7 +492,9 @@ function renderActive() {
     else if(d<=7){cc='urgent';sc='chip-urgent';st=`⚠️ 剩 ${d} 天！`;}
     else if(d<=30){cc='warning';sc='chip-warning';st=`⏰ 剩 ${d} 天`;}
     else{sc='chip-ok';st=`✅ 剩 ${d} 天`;}
-    const thumb=item.image?`<div class="item-thumb"><img src="${item.image}" alt=""></div>`:`<div class="item-thumb">🍪</div>`;
+    const thumb = item.image
+      ? `<div class="item-thumb"><img src="${item.image}" alt="${item.name}"></div>`
+      : `<div class="item-thumb">🍪</div>`;
     return `<div class="item-card ${cc}">${thumb}<div class="item-body"><div class="item-name">${item.name}</div><div class="item-dates">📅 有效：${item.expiry}${item.purchase?`<br>🛒 購買：${item.purchase}`:''}${item.notes?`<br>📝 ${item.notes}`:''}</div><span class="status-chip ${sc}">${st}</span><div class="item-actions"><button class="action-btn eat" onclick="markEaten('${item.notionId}','${item.name}')">✅ 吃掉了</button><button class="action-btn del" onclick="deleteItem('${item.notionId}','${item.name}')">🗑</button></div></div></div>`;
   }).join('');
 }
@@ -460,42 +505,38 @@ function setSort(type,btn){currentSort=type;document.querySelectorAll('.sort-btn
 async function markEaten(notionId, name) {
   showToast('⏳ 更新中…');
   try {
-    await fetch(PROXY, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'updatePage', token:getToken(), pageId:notionId, properties:{"Status":{select:{name:'已吃完'}}} })
-    });
+    await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'updatePage',token:getToken(),pageId:notionId,properties:{"Status":{select:{name:'已吃完'}}}})});
     showToast('✅ '+name+' 已吃完！');
     await loadFromNotion();
-  } catch(e) { showToast('❌ 更新失敗'); }
+  } catch(e){showToast('❌ 更新失敗');}
 }
 
 async function deleteItem(notionId, name) {
-  if(!confirm('確定要刪除「'+name+'」？')) return;
+  if(!confirm('確定要刪除「'+name+'」？'))return;
   showToast('⏳ 刪除中…');
   try {
-    await fetch(PROXY, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'updatePage', token:getToken(), pageId:notionId, properties:{"Status":{select:{name:'已過期'}}} })
-    });
+    await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'updatePage',token:getToken(),pageId:notionId,properties:{"Status":{select:{name:'已過期'}}}})});
     showToast('🗑 已刪除');
     await loadFromNotion();
-  } catch(e) { showToast('❌ 刪除失敗'); }
+  } catch(e){showToast('❌ 刪除失敗');}
 }
 
 function renderHistory() {
   const list=document.getElementById('history-list');
-  document.getElementById('history-count').textContent=history.length+' 項';
-  if(!history.length){list.innerHTML=`<div class="empty-state"><div class="emoji">📦</div><p>還沒有歷史紀錄</p></div>`;return;}
-  list.innerHTML=history.map(item=>{
+  document.getElementById('history-count').textContent=historyItems.length+' 項';
+  if(!historyItems.length){list.innerHTML=`<div class="empty-state"><div class="emoji">📦</div><p>還沒有歷史紀錄</p></div>`;return;}
+  list.innerHTML=historyItems.map(item=>{
     const r=item.archiveReason==='eaten'?'已吃完':'已過期';
     const bc=item.archiveReason==='eaten'?'badge-eaten':'badge-expired';
-    return `<div class="history-card"><div class="history-thumb">🍪</div><div class="history-info"><div class="history-name">${item.name}</div><div class="history-meta">效期 ${item.expiry}</div></div><span class="history-badge ${bc}">${r}</span></div>`;
+    const thumb=item.image?`<div class="history-thumb"><img src="${item.image}" alt="${item.name}"></div>`:`<div class="history-thumb">🍪</div>`;
+    return `<div class="history-card">${thumb}<div class="history-info"><div class="history-name">${item.name}</div><div class="history-meta">效期 ${item.expiry}</div></div><span class="history-badge ${bc}">${r}</span></div>`;
   }).join('');
 }
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
-// ── 啟動時從 Notion 載入 ──
 document.getElementById('f-purchase').value=new Date().toISOString().split('T')[0];
 loadFromNotion();
 </script>
