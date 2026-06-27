@@ -5,386 +5,469 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>🍪 餅乾效期管家</title>
 <style>
-  :root { --cream:#FAF7F2; --warm-white:#FFFDF9; --biscuit:#E8D5B0; --caramel:#C49A6C; --dark-brown:#5C3D1E; --forest:#4A7C59; --sage:#8FB49A; --alert-red:#C0392B; --alert-yellow:#D4860A; --text-main:#3A2A1A; --text-muted:#8A7A6A; --card-shadow:0 4px 24px rgba(92,61,30,0.10); }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Helvetica Neue','PingFang TC','Microsoft JhengHei',sans-serif; background:var(--cream); color:var(--text-main); min-height:100vh; }
-  header { background:linear-gradient(135deg,var(--dark-brown) 0%,#7A5030 100%); color:#fff; padding:16px 20px; position:sticky; top:0; z-index:100; box-shadow:0 2px 16px rgba(0,0,0,0.18); display:flex; align-items:center; justify-content:space-between; }
-  header div h1 { font-size:1.2rem; font-weight:700; }
-  header div p { font-size:.72rem; opacity:.7; margin-top:2px; }
-  #sync-btn { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:20px; padding:6px 14px; font-size:.75rem; cursor:pointer; }
-  #config-banner { background:linear-gradient(90deg,#fff3cd,#ffeaa7); border-left:4px solid var(--alert-yellow); padding:10px 16px; font-size:.82rem; display:flex; align-items:center; gap:10px; cursor:pointer; }
-  #config-banner span { flex:1; color:#7a5c00; }
-  #config-panel { background:var(--warm-white); border-bottom:1px solid var(--biscuit); padding:16px; display:none; }
-  #config-panel.open { display:block; }
-  .config-row { margin-bottom:10px; }
-  .config-row label { display:block; font-size:.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; }
-  .config-row input { width:100%; padding:9px 12px; border:1.5px solid var(--biscuit); border-radius:8px; font-size:.82rem; background:var(--cream); color:var(--text-main); }
-  .config-save-btn { background:var(--dark-brown); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-size:.85rem; font-weight:600; cursor:pointer; width:100%; margin-top:8px; }
-  .tabs { display:flex; background:var(--warm-white); border-bottom:1.5px solid var(--biscuit); padding:0 16px; }
-  .tab { padding:11px 14px; font-size:.82rem; font-weight:600; color:var(--text-muted); cursor:pointer; border-bottom:2.5px solid transparent; transition:all .2s; white-space:nowrap; }
-  .tab.active { color:var(--dark-brown); border-bottom-color:var(--caramel); }
-  main { padding:14px; max-width:600px; margin:0 auto; }
-  .section { display:none; }
-  .section.active { display:block; }
-  .add-card { background:var(--warm-white); border-radius:16px; padding:18px; box-shadow:var(--card-shadow); margin-bottom:16px; }
-  .add-card h2 { font-size:.95rem; font-weight:700; color:var(--dark-brown); margin-bottom:14px; }
-  .upload-zone { border:2px dashed var(--biscuit); border-radius:12px; padding:24px 16px; text-align:center; cursor:pointer; background:var(--cream); transition:all .2s; }
-  .upload-zone:hover { border-color:var(--caramel); background:#FDF5E8; }
-  .upload-zone .icon { font-size:2.2rem; margin-bottom:6px; }
-  .upload-zone p { font-size:.8rem; color:var(--text-muted); line-height:1.5; }
-  .upload-zone input { display:none; }
-  #preview-wrap { margin-top:10px; display:none; position:relative; }
-  #preview-img { width:100%; border-radius:10px; max-height:200px; object-fit:cover; display:block; }
-  #remove-img { position:absolute; top:6px; right:6px; background:rgba(0,0,0,.55); color:#fff; border:none; border-radius:50%; width:26px; height:26px; font-size:.85rem; cursor:pointer; }
-  .ai-status { display:none; align-items:center; gap:8px; font-size:.78rem; color:var(--forest); margin-top:8px; background:#EDF7F0; border-radius:8px; padding:8px 12px; }
-  .ai-status.show { display:flex; }
-  .spinner { width:15px; height:15px; border:2px solid var(--sage); border-top-color:var(--forest); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .form-grid { display:grid; gap:10px; margin-top:14px; }
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .form-group label { display:block; font-size:.73rem; color:var(--text-muted); font-weight:600; margin-bottom:3px; }
-  .form-group input { width:100%; padding:9px 12px; border:1.5px solid var(--biscuit); border-radius:8px; font-size:.85rem; background:var(--cream); color:var(--text-main); }
-  .form-group input:focus { outline:none; border-color:var(--caramel); }
-  .add-btn { width:100%; padding:13px; background:linear-gradient(135deg,var(--dark-brown),var(--caramel)); color:#fff; border:none; border-radius:10px; font-size:.95rem; font-weight:700; cursor:pointer; margin-top:4px; transition:opacity .2s; }
-  .add-btn:disabled { opacity:.5; cursor:not-allowed; }
-  .list-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-  .list-header h2 { font-size:.95rem; font-weight:700; color:var(--dark-brown); }
-  .count-badge { background:var(--biscuit); color:var(--dark-brown); border-radius:20px; padding:2px 10px; font-size:.73rem; font-weight:700; }
-  .sort-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
-  .sort-btn { font-size:.73rem; padding:4px 12px; border-radius:20px; border:1.5px solid var(--biscuit); background:var(--warm-white); color:var(--text-muted); cursor:pointer; }
-  .sort-btn.active { background:var(--dark-brown); color:#fff; border-color:var(--dark-brown); }
-  .item-card { background:var(--warm-white); border-radius:14px; padding:12px; margin-bottom:10px; box-shadow:var(--card-shadow); display:flex; gap:10px; align-items:flex-start; border-left:4px solid var(--sage); position:relative; overflow:hidden; }
-  .item-card.urgent { border-left-color:var(--alert-red); }
-  .item-card.warning { border-left-color:var(--alert-yellow); }
-  .item-card.expired { border-left-color:#aaa; opacity:.65; }
-  .item-thumb { width:64px; height:64px; border-radius:10px; flex-shrink:0; background:var(--biscuit); display:flex; align-items:center; justify-content:center; font-size:1.6rem; overflow:hidden; }
-  .item-thumb img { width:100%; height:100%; object-fit:cover; border-radius:10px; }
-  .item-body { flex:1; min-width:0; }
-  .item-name { font-weight:700; font-size:.92rem; color:var(--dark-brown); margin-bottom:3px; }
-  .item-dates { font-size:.72rem; color:var(--text-muted); margin-bottom:6px; line-height:1.6; }
-  .status-chip { display:inline-block; font-size:.68rem; font-weight:700; padding:2px 10px; border-radius:20px; margin-bottom:7px; }
-  .chip-ok { background:#EDF7F0; color:var(--forest); }
-  .chip-warning { background:#FFF3CD; color:#7a5c00; }
-  .chip-urgent { background:#FDEDEC; color:var(--alert-red); }
-  .chip-expired { background:#F0F0F0; color:#888; }
-  .item-actions { display:flex; gap:6px; flex-wrap:wrap; }
-  .action-btn { font-size:.72rem; padding:5px 11px; border-radius:20px; border:1.5px solid var(--biscuit); background:var(--cream); color:var(--text-muted); cursor:pointer; transition:all .15s; }
-  .action-btn.eat { border-color:var(--forest); color:var(--forest); }
-  .action-btn.eat:hover { background:var(--forest); color:#fff; }
-  .action-btn.del:hover { background:var(--alert-red); color:#fff; border-color:var(--alert-red); }
-  .history-card { background:var(--warm-white); border-radius:12px; padding:10px 12px; margin-bottom:8px; display:flex; align-items:center; gap:10px; opacity:.7; box-shadow:0 2px 8px rgba(0,0,0,.06); }
-  .history-thumb { width:44px; height:44px; border-radius:8px; background:var(--biscuit); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; overflow:hidden; }
-  .history-thumb img { width:100%; height:100%; object-fit:cover; border-radius:8px; }
-  .history-info { flex:1; }
-  .history-name { font-weight:600; font-size:.85rem; }
-  .history-meta { font-size:.7rem; color:var(--text-muted); margin-top:2px; }
-  .history-badge { font-size:.68rem; padding:2px 8px; border-radius:12px; font-weight:600; white-space:nowrap; }
-  .badge-eaten { background:#EDF7F0; color:var(--forest); }
-  .badge-expired { background:#F0F0F0; color:#888; }
-  .loading-state { text-align:center; padding:40px 24px; color:var(--text-muted); }
-  .loading-state .spin { font-size:2rem; animation:spin .8s linear infinite; display:inline-block; margin-bottom:10px; }
-  .empty-state { text-align:center; padding:48px 24px; color:var(--text-muted); }
-  .empty-state .emoji { font-size:2.8rem; margin-bottom:10px; }
-  .empty-state p { font-size:.88rem; line-height:1.6; }
-  #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--dark-brown); color:#fff; padding:10px 20px; border-radius:24px; font-size:.82rem; box-shadow:0 4px 20px rgba(0,0,0,.25); transition:transform .3s; z-index:9999; white-space:nowrap; pointer-events:none; }
-  #toast.show { transform:translateX(-50%) translateY(0); }
-  .fab { position:fixed; bottom:24px; right:20px; width:54px; height:54px; background:linear-gradient(135deg,var(--dark-brown),var(--caramel)); color:#fff; border:none; border-radius:50%; font-size:1.5rem; cursor:pointer; box-shadow:0 4px 20px rgba(92,61,30,.35); display:flex; align-items:center; justify-content:center; z-index:50; }
-  @media (max-width:400px) { .form-row { grid-template-columns:1fr; } }
+:root {
+  --bg: #FAF7F2; --card: #FFFDF9; --border: #E8D5B0;
+  --brown: #5C3D1E; --caramel: #C49A6C; --green: #4A7C59;
+  --red: #C0392B; --yellow: #D4860A; --muted: #8A7A6A;
+  --shadow: 0 4px 20px rgba(92,61,30,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Helvetica Neue','PingFang TC',sans-serif; background: var(--bg); min-height: 100vh; color: #3A2A1A; }
+
+/* Header */
+header { background: linear-gradient(135deg,#5C3D1E,#7A5030); color:#fff; padding:14px 18px; position:sticky; top:0; z-index:99; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.2); }
+header h1 { font-size:1.1rem; font-weight:700; }
+header p { font-size:.68rem; opacity:.7; margin-top:1px; }
+#btn-sync { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:20px; padding:5px 13px; font-size:.75rem; cursor:pointer; }
+
+/* Config */
+#cfg-bar { background:#FFF8DC; border-left:4px solid var(--yellow); padding:9px 16px; font-size:.8rem; color:#7a5c00; cursor:pointer; display:flex; justify-content:space-between; }
+#cfg-panel { background:var(--card); border-bottom:1px solid var(--border); padding:14px; display:none; }
+#cfg-panel.open { display:block; }
+.cfg-row { margin-bottom:10px; }
+.cfg-row label { display:block; font-size:.73rem; color:var(--muted); font-weight:600; margin-bottom:3px; }
+.cfg-row input { width:100%; padding:8px 11px; border:1.5px solid var(--border); border-radius:8px; font-size:.82rem; background:var(--bg); }
+#cfg-save { width:100%; padding:9px; background:var(--brown); color:#fff; border:none; border-radius:8px; font-size:.85rem; font-weight:600; cursor:pointer; margin-top:6px; }
+
+/* Tabs */
+.tabs { display:flex; background:var(--card); border-bottom:2px solid var(--border); padding:0 14px; }
+.tab { padding:10px 14px; font-size:.8rem; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; white-space:nowrap; }
+.tab.on { color:var(--brown); border-bottom-color:var(--caramel); }
+
+/* Main */
+main { padding:14px; max-width:580px; margin:0 auto; }
+.page { display:none; }
+.page.on { display:block; }
+
+/* Add form */
+.card { background:var(--card); border-radius:14px; padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+.card h2 { font-size:.9rem; font-weight:700; color:var(--brown); margin-bottom:12px; }
+
+.dropzone { border:2px dashed var(--border); border-radius:10px; padding:22px 14px; text-align:center; cursor:pointer; background:var(--bg); transition:.2s; }
+.dropzone:hover { border-color:var(--caramel); background:#FDF5E8; }
+.dropzone .ico { font-size:2rem; margin-bottom:4px; }
+.dropzone p { font-size:.78rem; color:var(--muted); line-height:1.5; }
+.dropzone input { display:none; }
+
+#prev-wrap { margin-top:10px; display:none; position:relative; }
+#prev-img { width:100%; border-radius:9px; max-height:190px; object-fit:cover; display:block; }
+#prev-rm { position:absolute; top:5px; right:5px; background:rgba(0,0,0,.5); color:#fff; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; font-size:.8rem; }
+
+.ai-bar { display:none; align-items:center; gap:8px; margin-top:8px; background:#EDF7F0; border-radius:8px; padding:8px 11px; font-size:.76rem; color:var(--green); }
+.ai-bar.on { display:flex; }
+.spin { width:14px; height:14px; border:2px solid #8FB49A; border-top-color:var(--green); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.grid { display:grid; gap:9px; margin-top:12px; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.fld label { display:block; font-size:.72rem; color:var(--muted); font-weight:600; margin-bottom:2px; }
+.fld input { width:100%; padding:8px 11px; border:1.5px solid var(--border); border-radius:8px; font-size:.83rem; background:var(--bg); }
+.fld input:focus { outline:none; border-color:var(--caramel); }
+#btn-add { width:100%; padding:12px; background:linear-gradient(135deg,var(--brown),var(--caramel)); color:#fff; border:none; border-radius:10px; font-size:.92rem; font-weight:700; cursor:pointer; margin-top:4px; }
+#btn-add:disabled { opacity:.5; cursor:not-allowed; }
+
+/* List */
+.list-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
+.list-hd h2 { font-size:.9rem; font-weight:700; color:var(--brown); }
+.badge { background:var(--border); color:var(--brown); border-radius:20px; padding:2px 10px; font-size:.7rem; font-weight:700; }
+.sorts { display:flex; gap:7px; margin-bottom:10px; flex-wrap:wrap; }
+.srt { font-size:.7rem; padding:4px 11px; border-radius:20px; border:1.5px solid var(--border); background:var(--card); color:var(--muted); cursor:pointer; }
+.srt.on { background:var(--brown); color:#fff; border-color:var(--brown); }
+
+/* Item card */
+.item { background:var(--card); border-radius:13px; padding:11px; margin-bottom:9px; box-shadow:var(--shadow); display:flex; gap:9px; align-items:flex-start; border-left:4px solid #8FB49A; }
+.item.warn { border-left-color:var(--yellow); }
+.item.hot  { border-left-color:var(--red); }
+.item.dead { border-left-color:#aaa; opacity:.6; }
+.thumb { width:60px; height:60px; border-radius:9px; flex-shrink:0; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:1.5rem; overflow:hidden; }
+.thumb img { width:100%; height:100%; object-fit:cover; border-radius:9px; }
+.info { flex:1; min-width:0; }
+.iname { font-weight:700; font-size:.9rem; color:var(--brown); margin-bottom:2px; }
+.imeta { font-size:.7rem; color:var(--muted); line-height:1.6; margin-bottom:5px; }
+.chip { display:inline-block; font-size:.66rem; font-weight:700; padding:2px 9px; border-radius:20px; margin-bottom:6px; }
+.c-ok   { background:#EDF7F0; color:var(--green); }
+.c-warn { background:#FFF3CD; color:#7a5c00; }
+.c-hot  { background:#FDEDEC; color:var(--red); }
+.c-dead { background:#F0F0F0; color:#888; }
+.acts { display:flex; gap:5px; flex-wrap:wrap; }
+.act { font-size:.7rem; padding:4px 10px; border-radius:20px; border:1.5px solid var(--border); background:var(--bg); color:var(--muted); cursor:pointer; }
+.act.eat { border-color:var(--green); color:var(--green); }
+.act.del:hover { background:var(--red); color:#fff; border-color:var(--red); }
+
+/* History */
+.hcard { background:var(--card); border-radius:11px; padding:9px 11px; margin-bottom:7px; display:flex; align-items:center; gap:9px; opacity:.7; box-shadow:0 2px 6px rgba(0,0,0,.05); }
+.hthumb { width:40px; height:40px; border-radius:7px; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; overflow:hidden; }
+.hthumb img { width:100%; height:100%; object-fit:cover; border-radius:7px; }
+.hinfo { flex:1; }
+.hname { font-weight:600; font-size:.83rem; }
+.hmeta { font-size:.68rem; color:var(--muted); margin-top:1px; }
+.hbadge { font-size:.66rem; padding:2px 8px; border-radius:12px; font-weight:600; white-space:nowrap; }
+.eaten  { background:#EDF7F0; color:var(--green); }
+.expired{ background:#F0F0F0; color:#888; }
+
+/* States */
+.loading { text-align:center; padding:40px 20px; color:var(--muted); }
+.loading .s { font-size:2rem; animation:spin .8s linear infinite; display:inline-block; margin-bottom:8px; }
+.empty { text-align:center; padding:44px 20px; color:var(--muted); }
+.empty .e { font-size:2.6rem; margin-bottom:8px; }
+.empty p { font-size:.85rem; line-height:1.6; }
+
+/* Toast */
+#toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(70px); background:var(--brown); color:#fff; padding:9px 18px; border-radius:22px; font-size:.8rem; box-shadow:0 4px 16px rgba(0,0,0,.22); transition:transform .3s; z-index:999; white-space:nowrap; pointer-events:none; }
+#toast.on { transform:translateX(-50%) translateY(0); }
+
+/* FAB */
+.fab { position:fixed; bottom:22px; right:18px; width:52px; height:52px; background:linear-gradient(135deg,var(--brown),var(--caramel)); color:#fff; border:none; border-radius:50%; font-size:1.4rem; cursor:pointer; box-shadow:0 4px 16px rgba(92,61,30,.35); display:flex; align-items:center; justify-content:center; z-index:50; }
+
+@media(max-width:400px){ .row2{ grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
+
 <header>
   <div><h1>🍪 餅乾效期管家</h1><p>拍照辨識 · Notion 同步 · 到期提醒</p></div>
-  <button id="sync-btn" onclick="loadFromNotion()">🔄 同步</button>
+  <button id="btn-sync" onclick="load()">🔄 同步</button>
 </header>
 
-<div id="config-banner" onclick="toggleConfig()">
+<div id="cfg-bar" onclick="toggleCfg()">
   <span>⚙️ Notion 設定（點此展開）</span><span>▾</span>
 </div>
-<div id="config-panel">
-  <div class="config-row"><label>Notion Integration Token</label><input type="password" id="notion-token" placeholder="ntn_xxxxxxxx"></div>
-  <div class="config-row"><label>Notion Database ID</label><input type="text" id="notion-db" placeholder="b11ab4a9..."></div>
-  <button class="config-save-btn" onclick="saveConfig()">💾 儲存設定</button>
+<div id="cfg-panel">
+  <div class="cfg-row"><label>Notion Token</label><input type="password" id="inp-token" placeholder="ntn_xxxxxxxx"></div>
+  <div class="cfg-row"><label>Database ID</label><input type="text" id="inp-db" placeholder="b11ab4a9..."></div>
+  <button id="cfg-save" onclick="saveCfg()">💾 儲存</button>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('active')">目前存貨</div>
-  <div class="tab" onclick="switchTab('add')">＋ 新增</div>
-  <div class="tab" onclick="switchTab('history')">歷史紀錄</div>
+  <div class="tab on" onclick="show('active')">目前存貨</div>
+  <div class="tab" onclick="show('add')">＋ 新增</div>
+  <div class="tab" onclick="show('history')">歷史紀錄</div>
 </div>
 
 <main>
-  <div class="section" id="sec-add">
-    <div class="add-card">
+  <!-- 新增 -->
+  <div class="page" id="p-add">
+    <div class="card">
       <h2>📸 拍照新增零食</h2>
-      <div class="upload-zone" onclick="document.getElementById('img-input').click()">
-        <div class="icon">📷</div>
-        <p>點擊拍照 / 選擇圖片<br><small>AI 自動辨識名稱與有效日期</small></p>
-        <input type="file" id="img-input" accept="image/*" onchange="handleImage(this)">
+      <div class="dropzone" onclick="document.getElementById('f-img').click()">
+        <div class="ico">📷</div>
+        <p>點擊拍照或選圖片<br><small>AI 自動辨識名稱與有效日期</small></p>
+        <input type="file" id="f-img" accept="image/*" onchange="onImg(this)">
       </div>
-      <div id="preview-wrap">
-        <img id="preview-img" alt="預覽">
-        <button id="remove-img" onclick="removeImage()">✕</button>
+      <div id="prev-wrap">
+        <img id="prev-img" alt="">
+        <button id="prev-rm" onclick="rmImg()">✕</button>
       </div>
-      <div class="ai-status" id="ai-status"><div class="spinner"></div><span id="ai-msg">AI 辨識中…</span></div>
-      <div class="form-grid">
-        <div class="form-group"><label>零食名稱 *</label><input type="text" id="f-name" placeholder="例：義美小泡芙"></div>
-        <div class="form-row">
-          <div class="form-group"><label>有效日期 *</label><input type="date" id="f-expiry"></div>
-          <div class="form-group"><label>購買日期</label><input type="date" id="f-purchase"></div>
+      <div class="ai-bar" id="ai-bar"><div class="spin"></div><span id="ai-txt">辨識中…</span></div>
+      <div class="grid">
+        <div class="fld"><label>零食名稱 *</label><input type="text" id="f-name" placeholder="例：義美小泡芙"></div>
+        <div class="row2">
+          <div class="fld"><label>有效日期 *</label><input type="date" id="f-exp"></div>
+          <div class="fld"><label>購買日期</label><input type="date" id="f-buy"></div>
         </div>
-        <div class="form-group"><label>備註</label><input type="text" id="f-notes" placeholder="例：第二層架子左邊"></div>
-        <button class="add-btn" id="add-btn" onclick="addItem()">＋ 加入清單</button>
+        <div class="fld"><label>備註</label><input type="text" id="f-note" placeholder="例：第二層架子左邊"></div>
+        <button id="btn-add" onclick="addItem()">＋ 加入清單</button>
       </div>
     </div>
   </div>
 
-  <div class="section active" id="sec-active">
-    <div class="list-header"><h2>目前存貨</h2><span class="count-badge" id="active-count">0 項</span></div>
-    <div class="sort-row">
-      <button class="sort-btn active" onclick="setSort('expiry',this)">⏰ 到期日</button>
-      <button class="sort-btn" onclick="setSort('name',this)">🔤 名稱</button>
-      <button class="sort-btn" onclick="setSort('status',this)">🚦 狀態</button>
+  <!-- 存貨 -->
+  <div class="page on" id="p-active">
+    <div class="list-hd"><h2>目前存貨</h2><span class="badge" id="cnt">0 項</span></div>
+    <div class="sorts">
+      <button class="srt on" onclick="sort('exp',this)">⏰ 到期日</button>
+      <button class="srt" onclick="sort('name',this)">🔤 名稱</button>
+      <button class="srt" onclick="sort('days',this)">🚦 狀態</button>
     </div>
-    <div id="active-list"></div>
+    <div id="list"></div>
   </div>
 
-  <div class="section" id="sec-history">
-    <div class="list-header"><h2>歷史紀錄</h2><span class="count-badge" id="history-count">0 項</span></div>
-    <div id="history-list"></div>
+  <!-- 歷史 -->
+  <div class="page" id="p-history">
+    <div class="list-hd"><h2>歷史紀錄</h2><span class="badge" id="hcnt">0 項</span></div>
+    <div id="hlist"></div>
   </div>
 </main>
 
-<button class="fab" onclick="switchTab('add')">＋</button>
+<button class="fab" onclick="show('add')">＋</button>
 <div id="toast"></div>
 
 <script>
+const TOKEN_KEY = 'ntn_token';
+const DB_KEY    = 'ntn_db';
+const THUMB_KEY = 'thumbs';
 const DEFAULT_TOKEN = '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';
 const DEFAULT_DB    = 'b11ab4a9b0a74c4a95b2df906ccb3a8c';
-const PROXY         = '/.netlify/functions/notion-proxy';
+const API = '/.netlify/functions/notion-proxy';
 
-function getToken() { return localStorage.getItem('notion_token') || DEFAULT_TOKEN; }
-function getDbId()  { return localStorage.getItem('notion_db')    || DEFAULT_DB; }
+const tok = () => localStorage.getItem(TOKEN_KEY) || DEFAULT_TOKEN;
+const db  = () => localStorage.getItem(DB_KEY)    || DEFAULT_DB;
 
-let items = [], historyItems = [], currentSort = 'expiry', currentThumb = null;
+let items = [], hist = [], sortBy = 'exp', thumb = null;
 
-function toggleConfig() {
-  document.getElementById('config-panel').classList.toggle('open');
-  document.getElementById('notion-token').value = getToken();
-  document.getElementById('notion-db').value = getDbId();
+// ── Config ──
+function toggleCfg() {
+  const p = document.getElementById('cfg-panel');
+  p.classList.toggle('open');
+  document.getElementById('inp-token').value = tok();
+  document.getElementById('inp-db').value    = db();
 }
-function saveConfig() {
-  localStorage.setItem('notion_token', document.getElementById('notion-token').value.trim());
-  localStorage.setItem('notion_db', document.getElementById('notion-db').value.trim());
-  document.getElementById('config-panel').classList.remove('open');
-  showToast('✅ 設定已儲存'); loadFromNotion();
-}
-function switchTab(name) {
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('sec-'+name).classList.add('active');
-  document.querySelectorAll('.tab')[{active:0,add:1,history:2}[name]].classList.add('active');
-  if(name==='active') renderActive();
-  if(name==='history') loadHistory();
+function saveCfg() {
+  localStorage.setItem(TOKEN_KEY, document.getElementById('inp-token').value.trim());
+  localStorage.setItem(DB_KEY,    document.getElementById('inp-db').value.trim());
+  document.getElementById('cfg-panel').classList.remove('open');
+  toast('✅ 設定已儲存'); load();
 }
 
-// ── 圖片處理 ──
-function makeThumb(dataUrl, cb) {
+// ── Tabs ──
+function show(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('p-'+name).classList.add('on');
+  const idx = {active:0,add:1,history:2}[name];
+  document.querySelectorAll('.tab')[idx].classList.add('on');
+  if(name==='active')  renderList();
+  if(name==='history') loadHist();
+}
+
+// ── 圖片 ──
+function resizeTo(dataUrl, maxPx, quality, cb) {
   const img = new Image();
   img.onload = () => {
-    const MAX=300, c=document.createElement('canvas');
     let w=img.width, h=img.height;
-    if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
-    c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
-    cb(c.toDataURL('image/jpeg',0.7));
-  };
-  img.src = dataUrl;
-}
-function makeAIImg(dataUrl, cb) {
-  const img = new Image();
-  img.onload = () => {
-    const MAX=1200, c=document.createElement('canvas');
-    let w=img.width, h=img.height;
-    if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
-    c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
-    cb(c.toDataURL('image/jpeg',0.85).split(',')[1]);
+    if(Math.max(w,h)>maxPx) { if(w>h){h=Math.round(h*maxPx/w);w=maxPx;}else{w=Math.round(w*maxPx/h);h=maxPx;} }
+    const c=document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',quality));
   };
   img.src = dataUrl;
 }
 
-async function handleImage(input) {
+function onImg(input) {
   const file = input.files[0]; if(!file) return;
   const r = new FileReader();
   r.onload = e => {
-    const dataUrl = e.target.result;
-    document.getElementById('preview-img').src = dataUrl;
-    document.getElementById('preview-wrap').style.display = 'block';
-    makeThumb(dataUrl, thumb => { currentThumb = thumb; });
-    makeAIImg(dataUrl, b64 => { recognizeWithClaude(b64); });
+    const url = e.target.result;
+    document.getElementById('prev-img').src = url;
+    document.getElementById('prev-wrap').style.display = 'block';
+    // 縮圖 300px 存 localStorage
+    resizeTo(url, 300, 0.75, t => { thumb = t; });
+    // 1200px 給 AI
+    resizeTo(url, 1200, 0.88, sized => {
+      recognise(sized.split(',')[1]);
+    });
   };
   r.readAsDataURL(file);
 }
 
-function removeImage() {
-  currentThumb = null;
-  document.getElementById('preview-wrap').style.display = 'none';
-  document.getElementById('img-input').value = '';
-  document.getElementById('ai-status').classList.remove('show');
+function rmImg() {
+  thumb = null;
+  document.getElementById('prev-wrap').style.display = 'none';
+  document.getElementById('f-img').value = '';
+  document.getElementById('ai-bar').classList.remove('on');
 }
 
 // ── AI 辨識 ──
-async function recognizeWithClaude(b64) {
-  const msg = document.getElementById('ai-msg');
-  document.getElementById('ai-status').classList.add('show');
-  msg.textContent = '🔍 AI 辨識中…';
+async function recognise(b64) {
+  const bar = document.getElementById('ai-bar');
+  const txt = document.getElementById('ai-txt');
+  bar.classList.add('on'); txt.textContent = '🔍 AI 辨識中…';
   try {
-    const res = await fetch(PROXY, {
+    const res = await fetch(API, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ action:'recognize', imageBase64:b64 })
     });
     const data = await res.json();
-    let parsed = {};
-    try { parsed = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); } catch(e){}
-    const results = [];
-    if(parsed.name)   { document.getElementById('f-name').value=parsed.name;     results.push('名稱：'+parsed.name); }
-    if(parsed.expiry) { document.getElementById('f-expiry').value=parsed.expiry; results.push('日期：'+(parsed.raw_date||parsed.expiry)); }
-    msg.textContent = results.length ? `✅ ${results.join('　')}` : '⚠️ 未辨識到，請手動填寫';
-  } catch(e) { msg.textContent = '⚠️ 辨識失敗：'+e.message; }
-}
-
-// ── Notion 讀取 ──
-async function loadFromNotion() {
-  document.getElementById('active-list').innerHTML = `<div class="loading-state"><div class="spin">⏳</div><p>從 Notion 載入中…</p></div>`;
-  document.getElementById('sync-btn').textContent = '⏳';
-  try {
-    const res = await fetch(PROXY, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'queryDb',token:getToken(),dbId:getDbId()}) });
-    const data = await res.json();
-    if(!data.results) throw new Error();
-    const thumbs = JSON.parse(localStorage.getItem('thumbs')||'{}');
-    items = data.results.map(p => ({
-      notionId: p.id,
-      name: p.properties?.Name?.title?.[0]?.plain_text||'未命名',
-      expiry: p.properties?.ExpiryDate?.date?.start||'',
-      purchase: p.properties?.PurchaseDate?.date?.start||'',
-      notes: p.properties?.Notes?.rich_text?.[0]?.plain_text||'',
-      image: thumbs[p.id]||null
-    }));
-    document.getElementById('sync-btn').textContent = '🔄 同步';
-    renderActive(); showToast(`✅ 已載入 ${items.length} 項`);
+    let p = {};
+    try { p = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); } catch(e){}
+    const got = [];
+    if(p.name)   { document.getElementById('f-name').value = p.name;  got.push('名稱：'+p.name); }
+    if(p.expiry) { document.getElementById('f-exp').value  = p.expiry; got.push('日期：'+(p.raw_date||p.expiry)); }
+    txt.textContent = got.length ? '✅ '+got.join('　') : '⚠️ 未辨識到，請手動填寫';
   } catch(e) {
-    document.getElementById('active-list').innerHTML = `<div class="empty-state"><div class="emoji">❌</div><p>載入失敗，請確認 Notion 設定</p></div>`;
-    document.getElementById('sync-btn').textContent = '🔄 同步';
+    txt.textContent = '⚠️ 辨識失敗，請手動填寫';
   }
 }
 
-async function loadHistory() {
-  document.getElementById('history-list').innerHTML = `<div class="loading-state"><div class="spin">⏳</div><p>載入歷史中…</p></div>`;
+// ── 讀取 Notion ──
+async function load() {
+  document.getElementById('list').innerHTML = '<div class="loading"><div class="s">⏳</div><p>載入中…</p></div>';
+  document.getElementById('btn-sync').textContent = '⏳';
   try {
-    const res = await fetch(PROXY, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'queryHistory',token:getToken(),dbId:getDbId()}) });
+    const res = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'list',token:tok(),dbId:db()}) });
+    const data = await res.json();
+    if(!data.results) throw new Error(JSON.stringify(data));
+    const thumbs = JSON.parse(localStorage.getItem(THUMB_KEY)||'{}');
+    items = data.results.map(p => ({
+      id:       p.id,
+      name:     p.properties?.Name?.title?.[0]?.plain_text || '未命名',
+      expiry:   p.properties?.ExpiryDate?.date?.start || '',
+      purchase: p.properties?.PurchaseDate?.date?.start || '',
+      note:     p.properties?.Notes?.rich_text?.[0]?.plain_text || '',
+      img:      thumbs[p.id] || null
+    }));
+    document.getElementById('btn-sync').textContent = '🔄 同步';
+    renderList(); toast('✅ 已載入 '+items.length+' 項');
+  } catch(e) {
+    document.getElementById('list').innerHTML = '<div class="empty"><div class="e">❌</div><p>載入失敗<br>請確認 Notion 設定</p></div>';
+    document.getElementById('btn-sync').textContent = '🔄 同步';
+    console.error(e);
+  }
+}
+
+async function loadHist() {
+  document.getElementById('hlist').innerHTML = '<div class="loading"><div class="s">⏳</div><p>載入中…</p></div>';
+  try {
+    const res = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'history',token:tok(),dbId:db()}) });
     const data = await res.json();
     if(!data.results) throw new Error();
-    const thumbs = JSON.parse(localStorage.getItem('thumbs')||'{}');
-    historyItems = data.results.map(p => ({
-      name: p.properties?.Name?.title?.[0]?.plain_text||'未命名',
-      expiry: p.properties?.ExpiryDate?.date?.start||'',
-      archiveReason: p.properties?.Status?.select?.name==='已吃完'?'eaten':'expired',
-      image: thumbs[p.id]||null
+    const thumbs = JSON.parse(localStorage.getItem(THUMB_KEY)||'{}');
+    hist = data.results.map(p => ({
+      id:     p.id,
+      name:   p.properties?.Name?.title?.[0]?.plain_text || '未命名',
+      expiry: p.properties?.ExpiryDate?.date?.start || '',
+      status: p.properties?.Status?.select?.name || '',
+      img:    thumbs[p.id] || null
     }));
-    document.getElementById('history-count').textContent = historyItems.length+' 項';
-    renderHistory();
+    document.getElementById('hcnt').textContent = hist.length+' 項';
+    renderHist();
   } catch(e) {
-    document.getElementById('history-list').innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>載入失敗</p></div>`;
+    document.getElementById('hlist').innerHTML = '<div class="empty"><div class="e">📦</div><p>載入失敗</p></div>';
   }
 }
 
 // ── 新增 ──
 async function addItem() {
-  const name=document.getElementById('f-name').value.trim();
-  const expiry=document.getElementById('f-expiry').value;
-  const purchase=document.getElementById('f-purchase').value;
-  const notes=document.getElementById('f-notes').value.trim();
-  if(!name||!expiry){showToast('❗ 請填寫名稱與有效日期');return;}
-  const btn=document.getElementById('add-btn');
+  const name = document.getElementById('f-name').value.trim();
+  const exp  = document.getElementById('f-exp').value;
+  const buy  = document.getElementById('f-buy').value;
+  const note = document.getElementById('f-note').value.trim();
+  if(!name||!exp){ toast('❗ 請填寫名稱與有效日期'); return; }
+
+  const btn = document.getElementById('btn-add');
   btn.disabled=true; btn.textContent='儲存中…';
+
   try {
+    // Notion 只存文字，不存圖片
     const props = {
-      "Name":{title:[{text:{content:name}}]},
-      "ExpiryDate":{date:{start:expiry}},
-      "Status":{select:{name:'正常'}},
-      "Notes":{rich_text:[{text:{content:notes||''}}]}
+      "Name":       { title: [{ text: { content: name } }] },
+      "ExpiryDate": { date: { start: exp } },
+      "Status":     { select: { name: '正常' } },
+      "Notes":      { rich_text: [{ text: { content: note } }] }
     };
-    if(purchase) props["PurchaseDate"]={date:{start:purchase}};
-    const res = await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createPage',token:getToken(),dbId:getDbId(),properties:props})});
+    if(buy) props["PurchaseDate"] = { date: { start: buy } };
+
+    const res = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'create', token:tok(), dbId:db(), properties:props })
+    });
     const data = await res.json();
+
     if(data.id) {
-      // 縮圖存 localStorage
-      if(currentThumb) {
-        const thumbs = JSON.parse(localStorage.getItem('thumbs')||'{}');
-        thumbs[data.id] = currentThumb;
-        try { localStorage.setItem('thumbs',JSON.stringify(thumbs)); } catch(e){}
+      // 縮圖只存 localStorage，key 是 Notion page ID
+      if(thumb) {
+        const thumbs = JSON.parse(localStorage.getItem(THUMB_KEY)||'{}');
+        thumbs[data.id] = thumb;
+        try { localStorage.setItem(THUMB_KEY, JSON.stringify(thumbs)); } catch(e) { console.warn('localStorage full'); }
       }
-      showToast('🍪 已新增：'+name);
-      resetForm(); await loadFromNotion(); switchTab('active');
-    } else { showToast('❌ 新增失敗'); console.error(data); }
-  } catch(e) { showToast('❌ 網路錯誤'); }
+      toast('🍪 已新增：'+name);
+      resetForm(); await load(); show('active');
+    } else {
+      toast('❌ 新增失敗'); console.error(data);
+    }
+  } catch(e) {
+    toast('❌ 網路錯誤：'+e.message);
+  }
   btn.disabled=false; btn.textContent='＋ 加入清單';
 }
 
 function resetForm() {
-  ['f-name','f-expiry','f-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-purchase').value=new Date().toISOString().split('T')[0];
-  document.getElementById('preview-wrap').style.display='none';
-  document.getElementById('ai-status').classList.remove('show');
-  document.getElementById('img-input').value=''; currentThumb=null;
+  ['f-name','f-exp','f-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-buy').value = new Date().toISOString().split('T')[0];
+  document.getElementById('prev-wrap').style.display = 'none';
+  document.getElementById('ai-bar').classList.remove('on');
+  document.getElementById('f-img').value = '';
+  thumb = null;
 }
 
-function renderActive() {
-  const list=document.getElementById('active-list');
-  let ai=[...items];
-  ai.sort((a,b)=>currentSort==='expiry'?new Date(a.expiry)-new Date(b.expiry):currentSort==='name'?a.name.localeCompare(b.name,'zh-TW'):getDaysLeft(a.expiry)-getDaysLeft(b.expiry));
-  document.getElementById('active-count').textContent=ai.length+' 項';
-  if(!ai.length){list.innerHTML=`<div class="empty-state"><div class="emoji">🍪</div><p>還沒有任何零食<br>點右下角 ＋ 開始新增</p></div>`;return;}
-  list.innerHTML=ai.map(item=>{
-    const d=getDaysLeft(item.expiry);
-    let cc='',sc='',st='';
-    if(d<0){cc='expired';sc='chip-expired';st=`已過期 ${-d} 天`;}
-    else if(d<=7){cc='urgent';sc='chip-urgent';st=`⚠️ 剩 ${d} 天！`;}
-    else if(d<=30){cc='warning';sc='chip-warning';st=`⏰ 剩 ${d} 天`;}
-    else{sc='chip-ok';st=`✅ 剩 ${d} 天`;}
-    const thumb=item.image?`<div class="item-thumb"><img src="${item.image}" alt="${item.name}"></div>`:`<div class="item-thumb">🍪</div>`;
-    return `<div class="item-card ${cc}">${thumb}<div class="item-body"><div class="item-name">${item.name}</div><div class="item-dates">📅 有效：${item.expiry}${item.purchase?`<br>🛒 購買：${item.purchase}`:''}${item.notes?`<br>📝 ${item.notes}`:''}</div><span class="status-chip ${sc}">${st}</span><div class="item-actions"><button class="action-btn eat" onclick="markEaten('${item.notionId}','${item.name}')">✅ 吃掉了</button><button class="action-btn del" onclick="deleteItem('${item.notionId}','${item.name}')">🗑</button></div></div></div>`;
+// ── Render ──
+function days(s) {
+  const t=new Date(); t.setHours(0,0,0,0);
+  const e=new Date(s); e.setHours(0,0,0,0);
+  return Math.round((e-t)/86400000);
+}
+
+function renderList() {
+  const el = document.getElementById('list');
+  let arr = [...items];
+  if(sortBy==='exp')  arr.sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+  if(sortBy==='name') arr.sort((a,b)=>a.name.localeCompare(b.name,'zh-TW'));
+  if(sortBy==='days') arr.sort((a,b)=>days(a.expiry)-days(b.expiry));
+  document.getElementById('cnt').textContent = arr.length+' 項';
+  if(!arr.length){ el.innerHTML='<div class="empty"><div class="e">🍪</div><p>還沒有任何零食<br>點右下角 ＋ 新增</p></div>'; return; }
+  el.innerHTML = arr.map(it=>{
+    const d=days(it.expiry);
+    let cls='', cc='', ct='';
+    if(d<0)     { cls='dead'; cc='c-dead'; ct=`已過期 ${-d} 天`; }
+    else if(d<=7)  { cls='hot';  cc='c-hot';  ct=`⚠️ 剩 ${d} 天！`; }
+    else if(d<=30) { cls='warn'; cc='c-warn'; ct=`⏰ 剩 ${d} 天`; }
+    else           { cc='c-ok';  ct=`✅ 剩 ${d} 天`; }
+    const th = it.img ? `<div class="thumb"><img src="${it.img}" alt=""></div>` : `<div class="thumb">🍪</div>`;
+    return `<div class="item ${cls}">${th}<div class="info">
+      <div class="iname">${it.name}</div>
+      <div class="imeta">📅 有效：${it.expiry}${it.purchase?`<br>🛒 購買：${it.purchase}`:''}${it.note?`<br>📝 ${it.note}`:''}</div>
+      <span class="chip ${cc}">${ct}</span>
+      <div class="acts">
+        <button class="act eat" onclick="markEaten('${it.id}','${it.name}')">✅ 吃掉了</button>
+        <button class="act del" onclick="delItem('${it.id}','${it.name}')">🗑 刪除</button>
+      </div>
+    </div></div>`;
   }).join('');
 }
 
-function getDaysLeft(s){const t=new Date();t.setHours(0,0,0,0);const e=new Date(s);e.setHours(0,0,0,0);return Math.round((e-t)/86400000);}
-function setSort(type,btn){currentSort=type;document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderActive();}
-
-async function markEaten(id,name){
-  showToast('⏳ 更新中…');
-  try{await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updatePage',token:getToken(),pageId:id,properties:{"Status":{select:{name:'已吃完'}}}})});showToast('✅ '+name+' 已吃完！');await loadFromNotion();}catch(e){showToast('❌ 更新失敗');}
-}
-async function deleteItem(id,name){
-  if(!confirm('確定要刪除「'+name+'」？'))return;
-  showToast('⏳ 刪除中…');
-  try{await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updatePage',token:getToken(),pageId:id,properties:{"Status":{select:{name:'已過期'}}}})});showToast('🗑 已刪除');await loadFromNotion();}catch(e){showToast('❌ 刪除失敗');}
+function sort(type, btn) {
+  sortBy=type;
+  document.querySelectorAll('.srt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); renderList();
 }
 
-function renderHistory(){
-  const list=document.getElementById('history-list');
-  document.getElementById('history-count').textContent=historyItems.length+' 項';
-  if(!historyItems.length){list.innerHTML=`<div class="empty-state"><div class="emoji">📦</div><p>還沒有歷史紀錄</p></div>`;return;}
-  list.innerHTML=historyItems.map(item=>{
-    const r=item.archiveReason==='eaten'?'已吃完':'已過期';
-    const bc=item.archiveReason==='eaten'?'badge-eaten':'badge-expired';
-    const thumb=item.image?`<div class="history-thumb"><img src="${item.image}" alt="${item.name}"></div>`:`<div class="history-thumb">🍪</div>`;
-    return `<div class="history-card">${thumb}<div class="history-info"><div class="history-name">${item.name}</div><div class="history-meta">效期 ${item.expiry}</div></div><span class="history-badge ${bc}">${r}</span></div>`;
+async function markEaten(id, name) {
+  toast('⏳ 更新中…');
+  try {
+    await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'update',token:tok(),pageId:id,properties:{"Status":{select:{name:'已吃完'}}}})});
+    toast('✅ '+name+' 吃掉了！'); await load();
+  } catch(e){ toast('❌ 更新失敗'); }
+}
+
+async function delItem(id, name) {
+  if(!confirm('確定要刪除「'+name+'」？')) return;
+  toast('⏳ 刪除中…');
+  try {
+    await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'update',token:tok(),pageId:id,properties:{"Status":{select:{name:'已過期'}}}})});
+    toast('🗑 已刪除'); await load();
+  } catch(e){ toast('❌ 刪除失敗'); }
+}
+
+function renderHist() {
+  const el = document.getElementById('hlist');
+  if(!hist.length){ el.innerHTML='<div class="empty"><div class="e">📦</div><p>還沒有歷史紀錄</p></div>'; return; }
+  el.innerHTML = hist.map(it=>{
+    const eaten = it.status==='已吃完';
+    const th = it.img ? `<div class="hthumb"><img src="${it.img}" alt=""></div>` : `<div class="hthumb">🍪</div>`;
+    return `<div class="hcard">${th}<div class="hinfo"><div class="hname">${it.name}</div><div class="hmeta">效期 ${it.expiry}</div></div><span class="hbadge ${eaten?'eaten':'expired'}">${it.status}</span></div>`;
   }).join('');
 }
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function toast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2800);
+}
 
-document.getElementById('f-purchase').value=new Date().toISOString().split('T')[0];
-loadFromNotion();
+// ── Init ──
+document.getElementById('f-buy').value = new Date().toISOString().split('T')[0];
+load();
 </script>
 </body>
 </html>
